@@ -4,11 +4,12 @@ from fastapi import APIRouter, HTTPException
 import wakeonlan
 import paramiko
 from config import settings
+from store import store
 
 router = APIRouter()
 
 _METRICS_SCRIPT = """
-import os, json, glob, subprocess
+import os, json, glob, subprocess, time
 
 def hwmon_sensors():
     result = {'cpu_package_c': None, 'cpu_cores_c': [], 'ssd_c': [], 'ambient_c': None}
@@ -35,18 +36,35 @@ def hwmon_sensors():
             result['ambient_c'] = temps.get('Ambient')
     return result
 
+def cpu_usage():
+    def read_stat():
+        with open('/proc/stat') as f:
+            vals = list(map(int, f.readline().split()[1:8]))
+        idle = vals[3] + vals[4]
+        return idle, sum(vals)
+    idle1, total1 = read_stat()
+    time.sleep(0.5)
+    idle2, total2 = read_stat()
+    delta = total2 - total1
+    return round((1 - (idle2 - idle1) / delta) * 100, 1) if delta else 0.0
+
 def gpu_metrics():
     try:
         out = subprocess.check_output(
             ['nvidia-smi',
-             '--query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total',
+             '--query-gpu=index,name,temperature.gpu,utilization.gpu,'
+             'memory.used,memory.total,power.draw',
              '--format=csv,noheader,nounits'], text=True)
         gpus = []
         for line in out.strip().splitlines():
-            idx, name, temp, util, mem_used, mem_total = [x.strip() for x in line.split(',')]
-            gpus.append({'index': int(idx), 'name': name, 'temp_c': int(temp),
-                         'util_pct': int(util), 'mem_used_mb': int(mem_used),
-                         'mem_total_mb': int(mem_total)})
+            idx, name, temp, util, mem_used, mem_total, power = [x.strip() for x in line.split(',')]
+            gpus.append({
+                'index': int(idx), 'name': name,
+                'temp_c': int(temp), 'util_pct': int(util),
+                'mem_used_mb': int(mem_used), 'mem_total_mb': int(mem_total),
+                'mem_pct': round(int(mem_used) / int(mem_total) * 100, 1),
+                'power_w': round(float(power), 1),
+            })
         return gpus
     except Exception:
         return []
@@ -60,9 +78,16 @@ def memory_metrics():
                 m[parts[0].strip()] = int(parts[1].split()[0])
     total = m.get('MemTotal', 0) // 1024
     available = m.get('MemAvailable', 0) // 1024
-    return {'total_mb': total, 'used_mb': total - available, 'available_mb': available}
+    used = total - available
+    return {'total_mb': total, 'used_mb': used, 'available_mb': available,
+            'pct': round(used / total * 100, 1) if total else 0.0}
 
-print(json.dumps({**hwmon_sensors(), 'gpus': gpu_metrics(), 'memory': memory_metrics()}))
+print(json.dumps({
+    **hwmon_sensors(),
+    'cpu_pct': cpu_usage(),
+    'gpus': gpu_metrics(),
+    'memory': memory_metrics(),
+}))
 """
 
 
@@ -86,11 +111,24 @@ def shutdown(host: str):
 
 @router.get("/metrics/{host}")
 def metrics(host: str):
+    snap = store.latest(host)
+    if snap:
+        return {"host": host, **snap}
+    # first call before collector has data — fetch live
     cfg = _get_host(host)
-    stdout = _ssh_exec_stdin(cfg["ip"], cfg["user"], cfg["ssh_key"],
-                             "python3 -", _METRICS_SCRIPT)
-    data = json.loads(stdout.strip())
-    return {"host": host, **data}
+    raw = _ssh_exec_stdin(cfg["ip"], cfg["user"], cfg["ssh_key"], "python3 -", _METRICS_SCRIPT)
+    return {"host": host, **json.loads(raw.strip())}
+
+
+@router.get("/metrics/{host}/history")
+def metrics_history(host: str):
+    _get_host(host)  # validate host exists
+    return {
+        "host": host,
+        "interval_s": 5,
+        "window_s": 300,
+        "history": store.history(host),
+    }
 
 
 def _get_host(name: str) -> dict:
