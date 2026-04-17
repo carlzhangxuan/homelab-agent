@@ -6,3 +6,5 @@ wakeonlan
 pydantic
 pydantic-settings
 prometheus_client
+psutil
+jinja2

@@ -5,16 +5,17 @@ from config import settings
 _reg = CollectorRegistry()
 
 _g = {
-    "cpu_temp":    Gauge("homelab_cpu_temp_celsius",     "CPU package temp",   ["host"], registry=_reg),
-    "cpu_pct":     Gauge("homelab_cpu_usage_percent",    "CPU usage %",        ["host"], registry=_reg),
-    "mem_pct":     Gauge("homelab_memory_usage_percent", "Memory usage %",     ["host"], registry=_reg),
-    "mem_used":    Gauge("homelab_memory_used_mb",       "Memory used MB",     ["host"], registry=_reg),
-    "gpu_temp":    Gauge("homelab_gpu_temp_celsius",     "GPU temp",           ["host", "index", "name"], registry=_reg),
-    "gpu_power":   Gauge("homelab_gpu_power_watts",      "GPU power draw",     ["host", "index", "name"], registry=_reg),
-    "gpu_util":    Gauge("homelab_gpu_util_percent",     "GPU utilization %",  ["host", "index", "name"], registry=_reg),
-    "gpu_mem_pct": Gauge("homelab_gpu_memory_percent",   "GPU memory usage %", ["host", "index", "name"], registry=_reg),
-    "ssd_temp":    Gauge("homelab_ssd_temp_celsius",     "SSD composite temp", ["host", "index"], registry=_reg),
-    "dimm_temp":   Gauge("homelab_dimm_temp_celsius",    "DDR5 DIMM temp",     ["host", "index"], registry=_reg),
+    "online":      Gauge("homelab_host_online",          "1 if host reachable", ["host"], registry=_reg),
+    "cpu_temp":    Gauge("homelab_cpu_temp_celsius",     "CPU package temp",    ["host"], registry=_reg),
+    "cpu_pct":     Gauge("homelab_cpu_usage_percent",    "CPU usage %",         ["host"], registry=_reg),
+    "mem_pct":     Gauge("homelab_memory_usage_percent", "Memory usage %",      ["host"], registry=_reg),
+    "mem_used":    Gauge("homelab_memory_used_mb",       "Memory used MB",      ["host"], registry=_reg),
+    "gpu_temp":    Gauge("homelab_gpu_temp_celsius",     "GPU temp",            ["host", "index", "name"], registry=_reg),
+    "gpu_power":   Gauge("homelab_gpu_power_watts",      "GPU power draw",      ["host", "index", "name"], registry=_reg),
+    "gpu_util":    Gauge("homelab_gpu_util_percent",     "GPU utilization %",   ["host", "index", "name"], registry=_reg),
+    "gpu_mem_pct": Gauge("homelab_gpu_memory_percent",   "GPU memory usage %",  ["host", "index", "name"], registry=_reg),
+    "ssd_temp":    Gauge("homelab_ssd_temp_celsius",     "SSD composite temp",  ["host", "index"], registry=_reg),
+    "dimm_temp":   Gauge("homelab_dimm_temp_celsius",    "DDR5 DIMM temp",      ["host", "index"], registry=_reg),
 }
 
 
@@ -22,6 +23,10 @@ def build_metrics() -> str:
     for host in settings.hosts:
         snap = store.latest(host)
         if not snap:
+            continue
+        online = snap.get("online", True)
+        _g["online"].labels(host=host).set(1 if online else 0)
+        if not online:
             continue
         if snap.get("cpu_package_c") is not None:
             _g["cpu_temp"].labels(host=host).set(snap["cpu_package_c"])

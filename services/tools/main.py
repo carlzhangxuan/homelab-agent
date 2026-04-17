@@ -5,6 +5,7 @@ from fastapi.responses import PlainTextResponse
 from prometheus_client import CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
 from routers import chat, homelab
 from routers.prom import build_metrics
+from routers.ui import router as ui_router
 import collector
 
 
@@ -19,6 +20,7 @@ app = FastAPI(title="homelab-tools", lifespan=lifespan)
 
 app.include_router(chat.router, prefix="/v1")
 app.include_router(homelab.router, prefix="/homelab")
+app.include_router(ui_router)
 
 
 @app.get("/metrics", response_class=PlainTextResponse)

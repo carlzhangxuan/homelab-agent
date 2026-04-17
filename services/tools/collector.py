@@ -9,7 +9,7 @@ from ssh import ssh_run
 
 logger = logging.getLogger(__name__)
 
-INTERVAL = 5  # seconds between collections; WINDOW * INTERVAL = history duration
+INTERVAL = 5  # seconds; WINDOW * INTERVAL = history duration
 
 METRICS_SCRIPT = """
 import os, json, glob, subprocess, time
@@ -102,6 +102,27 @@ print(json.dumps({
 """
 
 
+def _collect_local() -> dict:
+    import psutil
+    cpu_pct = psutil.cpu_percent(interval=0.5)
+    mem = psutil.virtual_memory()
+    return {
+        'cpu_package_c': None,
+        'cpu_cores_c': [],
+        'ssd_c': [],
+        'ambient_c': None,
+        'memory_dimm_c': [],
+        'cpu_pct': round(cpu_pct, 1),
+        'gpus': [],
+        'memory': {
+            'total_mb': mem.total // 1024 // 1024,
+            'used_mb': mem.used // 1024 // 1024,
+            'available_mb': mem.available // 1024 // 1024,
+            'pct': round(mem.percent, 1),
+        },
+    }
+
+
 async def collect_loop():
     while True:
         tasks = [
@@ -114,9 +135,14 @@ async def collect_loop():
 
 def _collect_one(host: str, cfg: dict):
     try:
-        raw = ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "python3 -", METRICS_SCRIPT)
-        data = json.loads(raw.strip())
+        if cfg.get("local"):
+            data = _collect_local()
+        else:
+            raw = ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "python3 -", METRICS_SCRIPT)
+            data = json.loads(raw.strip())
         data["ts"] = time.time()
+        data["online"] = True
         store.push(host, data)
     except Exception as e:
         logger.warning("collect %s failed: %s", host, e)
+        store.push(host, {"online": False, "ts": time.time()})
