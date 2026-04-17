@@ -1,5 +1,7 @@
 import json
+import shlex
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 import wakeonlan
 from config import settings
 from store import store
@@ -7,6 +9,10 @@ from ssh import ssh_run
 from collector import METRICS_SCRIPT
 
 router = APIRouter()
+
+
+class ShutdownRequest(BaseModel):
+    sudo_password: str = ""
 
 
 @router.post("/wake/{host}")
@@ -19,11 +25,23 @@ def wake(host: str):
 
 
 @router.post("/shutdown/{host}")
-def shutdown(host: str):
+def shutdown(host: str, req: ShutdownRequest | None = None):
     cfg = _get_host(host)
     if "mac" not in cfg:
         raise HTTPException(status_code=400, detail=f"host '{host}' does not support shutdown")
-    ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "sudo shutdown -h now")
+
+    power_cmd = "systemctl poweroff || shutdown -h now"
+    if req and req.sudo_password:
+        cmd = f"sudo -S -p '' sh -c {shlex.quote(power_cmd)}"
+        stdin_data = req.sudo_password + "\n"
+    else:
+        cmd = f"sudo -n sh -c {shlex.quote(power_cmd)}"
+        stdin_data = ""
+
+    try:
+        ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], cmd, stdin_data=stdin_data)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"shutdown failed for '{host}': {e}") from e
     return {"action": "shutdown", "host": host}
 
 

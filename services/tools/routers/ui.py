@@ -37,13 +37,40 @@ _PAGE = """<!DOCTYPE html>
     {rows}
   </table>
   <script>
-    async function wake(host) {{
-      await fetch('/homelab/wake/' + host, {{method: 'POST'}});
-    }}
-    async function shutdown(host) {{
-      if (!confirm('Shutdown ' + host + '?')) return;
-      await fetch('/homelab/shutdown/' + host, {{method: 'POST'}});
-    }}
+    async function postOrThrow(url, body) {
+      const options = {method: 'POST'};
+      if (body !== undefined) {
+        options.headers = {'Content-Type': 'application/json'};
+        options.body = JSON.stringify(body);
+      }
+      const resp = await fetch(url, options);
+      if (!resp.ok) {
+        let msg = resp.status + ' ' + resp.statusText;
+        try {
+          const data = await resp.json();
+          if (data && data.detail) msg = data.detail;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+    }
+    async function wake(host) {
+      try {
+        await postOrThrow('/homelab/wake/' + host);
+        alert('Wake sent: ' + host);
+      } catch (e) {
+        alert('Wake failed: ' + e.message);
+      }
+    }
+    async function shutdown(host) {
+      try {
+        const sudoPassword = prompt('Shutdown ' + host + '\\nInput sudo password (leave blank if passwordless sudo):', '');
+        if (sudoPassword === null) return;
+        await postOrThrow('/homelab/shutdown/' + host, {sudo_password: sudoPassword});
+        alert('Shutdown sent: ' + host);
+      } catch (e) {
+        alert('Shutdown failed: ' + e.message);
+      }
+    }
   </script>
 </body>
 </html>"""
