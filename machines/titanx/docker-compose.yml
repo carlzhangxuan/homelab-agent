@@ -1,0 +1,9 @@
+services:
+  gpu-exporter:
+    image: utkuozdemir/nvidia_gpu_exporter:1.2.0
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "9835:9835"

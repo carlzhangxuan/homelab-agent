@@ -1,0 +1,12 @@
+services:
+  tools:
+    image: ghcr.io/carlzhangxuan/homelab-agent/tools:latest
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - "${TOOLS_PORT:-8000}:8000"
+    env_file:
+      - .env
+    volumes:
+      - ${SSH_KEY_DIR:-~/.ssh}:/root/.ssh:ro

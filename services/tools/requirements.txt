@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+httpx
+paramiko
+wakeonlan
+pydantic
+pydantic-settings
