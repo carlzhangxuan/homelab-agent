@@ -16,7 +16,15 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_FEATURE_TOGGLES_DISABLE=provisioning
+      - GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}
+      - GF_SMTP_HOST=${GF_SMTP_HOST:-localhost:25}
+      - GF_SMTP_USER=${GF_SMTP_USER:-}
+      - GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD:-}
+      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-}
+      - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Grafana}
+      - GF_ALERT_EMAIL=${GF_ALERT_EMAIL:-}
+      - GF_SMTP_STARTTLS_POLICY=${GF_SMTP_STARTTLS_POLICY:-MandatoryStartTLS}
+      - GF_SMTP_SKIP_VERIFY=${GF_SMTP_SKIP_VERIFY:-false}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
