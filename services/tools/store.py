@@ -1,7 +1,7 @@
 from collections import deque
 from threading import Lock
 
-WINDOW = 60  # 5s * 60 = 5 min
+WINDOW = 60  # slots; multiply by collector.INTERVAL (5s) = 5 min history
 
 
 class MetricsStore:
