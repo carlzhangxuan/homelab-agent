@@ -7,10 +7,15 @@
   "schemaVersion": 39,
   "panels": [
     {
-      "id": 1, "type": "timeseries", "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "id": 1,
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
       "title": "GPU Temperature (°C)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
-        "defaults": { "unit": "celsius", "custom": { "lineWidth": 2 },
+        "defaults": {
+          "unit": "celsius",
+          "custom": { "lineWidth": 2 },
           "thresholds": { "mode": "absolute", "steps": [
             { "color": "green", "value": null },
             { "color": "yellow", "value": 70 },
@@ -19,52 +24,70 @@
         }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_gpu_temp_celsius",
-        "legendFormat": "{{host}} {{name}}"
+        "legendFormat": "{{host}} {{name}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 2, "type": "timeseries", "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "id": 2,
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
       "title": "GPU Power Draw (W)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "watt", "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_gpu_power_watts",
-        "legendFormat": "{{host}} {{name}}"
+        "legendFormat": "{{host}} {{name}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 3, "type": "timeseries", "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "id": 3,
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
       "title": "GPU Memory Usage (%)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_gpu_memory_percent",
-        "legendFormat": "{{host}} {{name}}"
+        "legendFormat": "{{host}} {{name}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 4, "type": "timeseries", "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "id": 4,
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
       "title": "GPU Utilization (%)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_gpu_util_percent",
-        "legendFormat": "{{host}} {{name}}"
+        "legendFormat": "{{host}} {{name}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 5, "type": "timeseries", "gridPos": { "x": 0, "y": 16, "w": 8, "h": 8 },
+      "id": 5,
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 8, "h": 8 },
       "title": "CPU Temperature (°C)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
-        "defaults": { "unit": "celsius", "custom": { "lineWidth": 2 },
+        "defaults": {
+          "unit": "celsius",
+          "custom": { "lineWidth": 2 },
           "thresholds": { "mode": "absolute", "steps": [
             { "color": "green", "value": null },
             { "color": "yellow", "value": 75 },
@@ -73,40 +96,54 @@
         }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_cpu_temp_celsius",
-        "legendFormat": "{{host}}"
+        "legendFormat": "{{host}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 6, "type": "timeseries", "gridPos": { "x": 8, "y": 16, "w": 8, "h": 8 },
+      "id": 6,
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 16, "w": 8, "h": 8 },
       "title": "CPU Usage (%)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_cpu_usage_percent",
-        "legendFormat": "{{host}}"
+        "legendFormat": "{{host}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 7, "type": "timeseries", "gridPos": { "x": 16, "y": 16, "w": 8, "h": 8 },
+      "id": 7,
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 16, "w": 8, "h": 8 },
       "title": "Memory Usage (%)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_memory_usage_percent",
-        "legendFormat": "{{host}}"
+        "legendFormat": "{{host}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 8, "type": "timeseries", "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "id": 8,
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
       "title": "SSD Temperature (°C)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
-        "defaults": { "unit": "celsius", "custom": { "lineWidth": 2 },
+        "defaults": {
+          "unit": "celsius",
+          "custom": { "lineWidth": 2 },
           "thresholds": { "mode": "absolute", "steps": [
             { "color": "green", "value": null },
             { "color": "yellow", "value": 55 },
@@ -115,21 +152,26 @@
         }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_ssd_temp_celsius",
-        "legendFormat": "{{host}} ssd{{index}}"
+        "legendFormat": "{{host}} ssd{{index}}",
+        "refId": "A"
       }]
     },
     {
-      "id": 9, "type": "timeseries", "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "id": 9,
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
       "title": "DDR5 DIMM Temperature (°C)",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": { "unit": "celsius", "custom": { "lineWidth": 2 } }
       },
       "targets": [{
-        "datasource": "Prometheus",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
         "expr": "homelab_dimm_temp_celsius",
-        "legendFormat": "{{host}} dimm{{index}}"
+        "legendFormat": "{{host}} dimm{{index}}",
+        "refId": "A"
       }]
     }
   ]
