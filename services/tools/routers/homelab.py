@@ -12,7 +12,8 @@ _METRICS_SCRIPT = """
 import os, json, glob, subprocess, time
 
 def hwmon_sensors():
-    result = {'cpu_package_c': None, 'cpu_cores_c': [], 'ssd_c': [], 'ambient_c': None}
+    result = {'cpu_package_c': None, 'cpu_cores_c': [], 'ssd_c': [],
+              'ambient_c': None, 'memory_dimm_c': []}
     for hwmon in sorted(glob.glob('/sys/class/hwmon/hwmon*')):
         name_f = f'{hwmon}/name'
         name = open(name_f).read().strip() if os.path.exists(name_f) else ''
@@ -25,15 +26,22 @@ def hwmon_sensors():
                 temps[label] = val
             except Exception:
                 pass
-        if name == 'coretemp':
+        if name == 'coretemp':                          # Intel
             result['cpu_package_c'] = temps.get('Package id 0')
             result['cpu_cores_c'] = [v for k, v in temps.items() if k.startswith('Core')]
+        elif name == 'k10temp':                         # AMD
+            result['cpu_package_c'] = temps.get('Tctl')
+            result['cpu_cores_c'] = [v for k, v in temps.items() if k.startswith('Tccd')]
         elif name == 'nvme':
             c = temps.get('Composite')
             if c is not None:
                 result['ssd_c'].append(c)
         elif name == 'dell_smm':
             result['ambient_c'] = temps.get('Ambient')
+        elif name == 'spd5118':                         # DDR5 DIMM temp
+            v = next(iter(temps.values()), None)
+            if v is not None:
+                result['memory_dimm_c'].append(v)
     return result
 
 def cpu_usage():
