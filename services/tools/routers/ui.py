@@ -120,7 +120,7 @@ _PAGE = """<!DOCTYPE html>
   <div class="footer">
     <a class="link" href="http://localhost:3001/d/homelab-overview/homelab-overview?orgId=1&amp;from=now-5m&amp;to=now&amp;timezone=browser&amp;refresh=5s" target="_blank">Grafana · homelab-overview</a>
     <button class="link" onclick="copyPath('file:///Volumes/titanX')">file:///Volumes/titanX</button>
-    <a class="link" href="http://localhost:6006/?darkMode=true#timeseries" target="_blank">tensorboard-5090</a>
+    <a class="link" href="http://localhost:6006/?darkMode=true#timeseries" target="_blank">tensorboard</a>
   </div>
   <script>
     const REFRESH_MS = 5000;
