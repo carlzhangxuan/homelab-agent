@@ -9,7 +9,6 @@ _PAGE = """<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="5">
   <title>Homelab</title>
   <style>
     body { font-family: monospace; background: #111; color: #eee; padding: 2rem; }
@@ -25,10 +24,17 @@ _PAGE = """<!DOCTYPE html>
     button:hover { background: #444; }
     button.wake { border-color: #4f4; }
     button.shutdown { border-color: #f84; }
+    #toast { position: fixed; bottom: 2rem; right: 2rem; padding: 0.6rem 1.2rem;
+             border-radius: 4px; font-family: monospace; font-size: 0.9rem;
+             opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    #toast.show { opacity: 1; }
+    #toast.ok  { background: #1a3a1a; border: 1px solid #4f4; color: #4f4; }
+    #toast.err { background: #3a1a1a; border: 1px solid #f44; color: #f44; }
   </style>
 </head>
 <body>
   <h1>Homelab</h1>
+  <div id="toast"></div>
   <table>
     <tr>
       <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
@@ -37,6 +43,15 @@ _PAGE = """<!DOCTYPE html>
     {rows}
   </table>
   <script>
+    let _toastTimer = null;
+    function toast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      if (_toastTimer) clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+    }
+
     async function postOrThrow(url, body) {
       const options = {method: 'POST'};
       if (body !== undefined) {
@@ -58,19 +73,27 @@ _PAGE = """<!DOCTYPE html>
         return {};
       }
     }
+    let _toastTimer = null;
+    function toast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      if (_toastTimer) clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+    }
     async function wake(host) {
       try {
         const result = await postOrThrow('/homelab/wake/' + host, {wait_timeout_s: 90, poll_interval_s: 5});
         if (result && result.online) {
           const elapsed = (result.elapsed_s !== undefined) ? (' in ~' + result.elapsed_s + 's') : '';
-          alert(host + ' is online' + elapsed);
+          toast(host + ' is online' + elapsed, 'ok');
         } else if (result && result.detail) {
-          alert(result.detail);
+          toast(result.detail, 'ok');
         } else {
-          alert('Wake sent: ' + host);
+          toast('Wake sent: ' + host, 'ok');
         }
       } catch (e) {
-        alert('Wake failed: ' + e.message);
+        toast('Wake failed: ' + e.message, 'err');
       }
     }
     async function shutdown(host) {
@@ -78,11 +101,12 @@ _PAGE = """<!DOCTYPE html>
         const sudoPassword = prompt('Shutdown ' + host + '\\nInput sudo password (leave blank if passwordless sudo):', '');
         if (sudoPassword === null) return;
         await postOrThrow('/homelab/shutdown/' + host, {sudo_password: sudoPassword});
-        alert('Shutdown sent: ' + host);
+        toast('Shutdown sent: ' + host, 'ok');
       } catch (e) {
-        alert('Shutdown failed: ' + e.message);
+        toast('Shutdown failed: ' + e.message, 'err');
       }
     }
+    setInterval(() => location.reload(), 5000);
   </script>
 </body>
 </html>"""
