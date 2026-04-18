@@ -1,0 +1,17 @@
+services:
+  train:
+    build: .
+    image: homelab/cifar10-test:latest
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - /mnt/ssd980/datasets:/data
+      - /mnt/ssd4t/logs:/logs
+      - /mnt/ssd4t/checkpoints:/checkpoints
+    command: >
+      --data-dir /data/cifar10
+      --log-dir /logs/cifar10-test
+      --ckpt-dir /checkpoints/cifar10-test
+      --epochs 10
+      --batch-size 512
