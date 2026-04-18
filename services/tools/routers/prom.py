@@ -18,6 +18,34 @@ _g = {
     "dimm_temp":   Gauge("homelab_dimm_temp_celsius",    "DDR5 DIMM temp",      ["host", "index"], registry=_reg),
 }
 
+# Track registered multi-label combos per host so we can remove them when a host goes offline.
+_gpu_labels:  dict[str, list[dict]] = {}
+_ssd_counts:  dict[str, int] = {}
+_dimm_counts: dict[str, int] = {}
+
+_NAN = float("nan")
+
+
+def _clear_offline(host: str) -> None:
+    for g in ("cpu_temp", "cpu_pct", "mem_pct", "mem_used"):
+        _g[g].labels(host=host).set(_NAN)
+    for lbl in _gpu_labels.pop(host, []):
+        for g in ("gpu_temp", "gpu_power", "gpu_util", "gpu_mem_pct"):
+            try:
+                _g[g].remove(**lbl)
+            except Exception:
+                pass
+    for i in range(_ssd_counts.pop(host, 0)):
+        try:
+            _g["ssd_temp"].remove(host=host, index=str(i))
+        except Exception:
+            pass
+    for i in range(_dimm_counts.pop(host, 0)):
+        try:
+            _g["dimm_temp"].remove(host=host, index=str(i))
+        except Exception:
+            pass
+
 
 def build_metrics() -> str:
     for host in settings.hosts:
@@ -27,6 +55,7 @@ def build_metrics() -> str:
         online = snap.get("online", True)
         _g["online"].labels(host=host).set(1 if online else 0)
         if not online:
+            _clear_offline(host)
             continue
         if snap.get("cpu_package_c") is not None:
             _g["cpu_temp"].labels(host=host).set(snap["cpu_package_c"])
@@ -36,15 +65,22 @@ def build_metrics() -> str:
         if mem.get("pct") is not None:
             _g["mem_pct"].labels(host=host).set(mem["pct"])
             _g["mem_used"].labels(host=host).set(mem.get("used_mb", 0))
+        gpu_lbls = []
         for gpu in snap.get("gpus", []):
             lbl = dict(host=host, index=str(gpu["index"]), name=gpu["name"])
+            gpu_lbls.append(lbl)
             _g["gpu_temp"].labels(**lbl).set(gpu["temp_c"])
             _g["gpu_power"].labels(**lbl).set(gpu["power_w"])
             _g["gpu_util"].labels(**lbl).set(gpu["util_pct"])
             _g["gpu_mem_pct"].labels(**lbl).set(gpu["mem_pct"])
-        for i, t in enumerate(snap.get("ssd_c", [])):
+        _gpu_labels[host] = gpu_lbls
+        ssds = snap.get("ssd_c", [])
+        for i, t in enumerate(ssds):
             _g["ssd_temp"].labels(host=host, index=str(i)).set(t)
-        for i, t in enumerate(snap.get("memory_dimm_c", [])):
+        _ssd_counts[host] = len(ssds)
+        dimms = snap.get("memory_dimm_c", [])
+        for i, t in enumerate(dimms):
             _g["dimm_temp"].labels(host=host, index=str(i)).set(t)
+        _dimm_counts[host] = len(dimms)
 
     return generate_latest(_reg).decode()

@@ -52,11 +52,23 @@ _PAGE = """<!DOCTYPE html>
         } catch (_) {}
         throw new Error(msg);
       }
+      try {
+        return await resp.json();
+      } catch (_) {
+        return {};
+      }
     }
     async function wake(host) {
       try {
-        await postOrThrow('/homelab/wake/' + host);
-        alert('Wake sent: ' + host);
+        const result = await postOrThrow('/homelab/wake/' + host, {wait_timeout_s: 90, poll_interval_s: 5});
+        if (result && result.online) {
+          const elapsed = (result.elapsed_s !== undefined) ? (' in ~' + result.elapsed_s + 's') : '';
+          alert(host + ' is online' + elapsed);
+        } else if (result && result.detail) {
+          alert(result.detail);
+        } else {
+          alert('Wake sent: ' + host);
+        }
       } catch (e) {
         alert('Wake failed: ' + e.message);
       }

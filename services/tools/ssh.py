@@ -2,11 +2,18 @@ import os
 import paramiko
 
 
-def ssh_run(ip: str, user: str, key_path: str, cmd: str, stdin_data: str = "") -> str:
+def ssh_run(
+    ip: str,
+    user: str,
+    key_path: str,
+    cmd: str,
+    stdin_data: str = "",
+    timeout: int = 30,
+) -> str:
     key_path = os.path.expanduser(key_path)
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(ip, username=user, key_filename=key_path, timeout=30)
+    client.connect(ip, username=user, key_filename=key_path, timeout=timeout)
     stdin, stdout, stderr = client.exec_command(cmd)
     if stdin_data:
         stdin.write(stdin_data)
