@@ -4,10 +4,10 @@ services:
     image: homelab/tensorboard:latest
     restart: unless-stopped
     command: >
-      --logdir_spec 5090:/data/5090
+      --logdir_spec 5090:/data/5090,4090:/data/4090
       --host 0.0.0.0
       --port 6006
     ports:
       - "${TENSORBOARD_PORT:-6006}:6006"
     volumes:
-      - /Users/zx/mnt/5090:/data/5090:ro
+      - /Users/zx/mnt:/data:ro

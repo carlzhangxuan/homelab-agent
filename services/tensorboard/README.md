@@ -1,41 +1,41 @@
 # TensorBoard
 
-Centralized TensorBoard instance on macmini, reading training logs from GPU machines via SSHFS.
+Centralized TensorBoard on macmini, reading training logs from GPU machines via SSHFS.
 
-- **URL:** http://localhost:6006
-- **Log sources:** 5090 (`192.168.10.33`)
+- URL: `http://localhost:6006/?darkMode=true#timeseries`
+- Log sources:
+  - `5090` -> `/mnt/ssd4t/logs` (mounted to mac `/Users/zx/mnt/5090`)
+  - `4090` -> `/home/zx/lab-small/tensorboard` (mounted to mac `/Users/zx/mnt/4090`)
 
-## macOS Prerequisites
+## 4090 small-experiment layout
 
-### 1. macFUSE
+On `4090`, this structure is used for lightweight experiments:
 
-Install macFUSE, then approve the kernel extension:
+```text
+/home/zx/lab-small/
+  tensorboard/
+  checkpoints/
+  artifacts/
+  datasets/
+  scripts/
+  tmp/
+```
+
+## mac prerequisites
+
+Install macFUSE + SSHFS first:
 
 ```bash
 brew install --cask macfuse
-```
-
-After install, macOS will block the kernel extension. To approve it:
-
-1. Shut down and boot into **Recovery Mode** (hold Touch ID on power-on)
-2. Go to **Utilities → Startup Security Utility → Security Policy**
-3. Select **Reduced Security** and enable **Allow user management of kernel extensions**
-4. Reboot normally
-5. Go to **System Settings → Privacy & Security**, scroll down and click **Allow** next to "Benjamin Fleischer" (macFUSE)
-6. Reboot again
-
-### 2. SSHFS
-
-```bash
 brew install sshfs
 ```
 
-## SSHFS Auto-Mount (LaunchAgent)
+## SSHFS auto-mount (LaunchAgent)
 
-Create the mount point:
+Create mount points:
 
 ```bash
-mkdir -p ~/mnt/5090
+mkdir -p /Users/zx/mnt/5090 /Users/zx/mnt/4090
 ```
 
 Create `~/Library/LaunchAgents/com.homelab.sshfs.5090.plist`:
@@ -53,7 +53,7 @@ Create `~/Library/LaunchAgents/com.homelab.sshfs.5090.plist`:
         <string>zx@192.168.10.33:/mnt/ssd4t/logs</string>
         <string>/Users/zx/mnt/5090</string>
         <string>-o</string>
-        <string>follow_symlinks,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/Users/zx/.ssh/id_ed25519</string>
+        <string>follow_symlinks,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/Users/zx/.ssh/id_rsa</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -65,36 +65,66 @@ Create `~/Library/LaunchAgents/com.homelab.sshfs.5090.plist`:
 </plist>
 ```
 
-Load it:
+Create `~/Library/LaunchAgents/com.homelab.sshfs.4090.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.homelab.sshfs.4090</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/sshfs</string>
+        <string>zx@192.168.10.31:/home/zx/lab-small/tensorboard</string>
+        <string>/Users/zx/mnt/4090</string>
+        <string>-o</string>
+        <string>follow_symlinks,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/Users/zx/.ssh/id_ed25519</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/homelab-sshfs-4090.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/homelab-sshfs-4090.err</string>
+</dict>
+</plist>
+```
+
+Load/reload:
 
 ```bash
+launchctl unload ~/Library/LaunchAgents/com.homelab.sshfs.5090.plist 2>/dev/null || true
+launchctl unload ~/Library/LaunchAgents/com.homelab.sshfs.4090.plist 2>/dev/null || true
 launchctl load ~/Library/LaunchAgents/com.homelab.sshfs.5090.plist
+launchctl load ~/Library/LaunchAgents/com.homelab.sshfs.4090.plist
 ```
 
 Verify:
 
 ```bash
-mount | grep 5090
+mount | grep '/Users/zx/mnt/'
+ls /Users/zx/mnt/5090
+ls /Users/zx/mnt/4090
 ```
 
-## Docker Compose
+## Docker compose
 
-The service is included in `machines/macmini/docker-compose.yml`.
+TensorBoard is included by `machines/macmini/docker-compose.yml`.
 
-Start:
+Start/recreate:
 
 ```bash
-cd machines/macmini && docker compose up -d tensorboard
+cd machines/macmini
+docker compose up -d --force-recreate tensorboard
 ```
 
-To add another GPU machine, add a new `logdir_spec` entry and a new SSHFS mount to `services/tensorboard/compose.yml`:
+Current compose wiring:
 
 ```yaml
 command: >
   --logdir_spec 5090:/data/5090,4090:/data/4090
-  --host 0.0.0.0
-  --port 6006
 volumes:
-  - /Users/zx/mnt/5090:/data/5090:ro
-  - /Users/zx/mnt/4090:/data/4090:ro
+  - /Users/zx/mnt:/data:ro
 ```
