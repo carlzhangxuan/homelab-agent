@@ -32,17 +32,17 @@ def _clear_offline(host: str) -> None:
     for lbl in _gpu_labels.pop(host, []):
         for g in ("gpu_temp", "gpu_power", "gpu_util", "gpu_mem_pct"):
             try:
-                _g[g].remove(**lbl)
+                _g[g].remove(lbl["host"], lbl["index"], lbl["name"])
             except Exception:
                 pass
     for i in range(_ssd_counts.pop(host, 0)):
         try:
-            _g["ssd_temp"].remove(host=host, index=str(i))
+            _g["ssd_temp"].remove(host, str(i))
         except Exception:
             pass
     for i in range(_dimm_counts.pop(host, 0)):
         try:
-            _g["dimm_temp"].remove(host=host, index=str(i))
+            _g["dimm_temp"].remove(host, str(i))
         except Exception:
             pass
 

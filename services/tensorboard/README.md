@@ -2,6 +2,9 @@
 
 Centralized TensorBoard on macmini, reading training logs from GPU machines via SSHFS.
 
+Training log layout reference: `services/tensorboard/TRAINING_GUIDE.md`
+Path config (YAML): `services/tensorboard/storage_paths.yaml`
+
 - URL: `http://localhost:6006/?darkMode=true#timeseries`
 - Log sources:
   - `5090` -> `/mnt/ssd4t/logs` (mounted to mac `/Users/zx/mnt/5090`)

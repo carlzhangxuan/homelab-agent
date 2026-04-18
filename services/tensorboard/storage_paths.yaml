@@ -1,0 +1,40 @@
+version: 1
+
+machines:
+  macmini:
+    mounts:
+      root: /Users/zx/mnt
+      tensorboard_5090: /Users/zx/mnt/5090
+      tensorboard_4090: /Users/zx/mnt/4090
+    tensorboard_container:
+      logdir_spec: "5090:/data/5090,4090:/data/4090"
+      data_root_in_container: /data
+
+  gpu_5090:
+    host: 192.168.10.33
+    storage:
+      tensorboard_root: /mnt/ssd4t/logs
+      checkpoints_root: /mnt/ssd4t/checkpoints
+      artifacts_root: /mnt/ssd4t/artifacts
+
+  gpu_4090:
+    host: 192.168.10.31
+    storage:
+      base: /home/zx/lab-small
+      tensorboard_root: /home/zx/lab-small/tensorboard
+      checkpoints_root: /home/zx/lab-small/checkpoints
+      artifacts_root: /home/zx/lab-small/artifacts
+      datasets_root: /home/zx/lab-small/datasets
+      scripts_root: /home/zx/lab-small/scripts
+      tmp_root: /home/zx/lab-small/tmp
+
+environments:
+  sandbox:
+    5090_log_dir_pattern: /mnt/ssd4t/logs/sandbox/<exp_name>
+    4090_log_dir_pattern: /home/zx/lab-small/tensorboard/sandbox/<exp_name>
+  prod:
+    5090_log_dir_pattern: /mnt/ssd4t/logs/prod/<exp_name>
+    4090_log_dir_pattern: /home/zx/lab-small/tensorboard/prod/<exp_name>
+  default:
+    5090_log_dir_pattern: /mnt/ssd4t/logs/<exp_name>
+    4090_log_dir_pattern: /home/zx/lab-small/tensorboard/<exp_name>

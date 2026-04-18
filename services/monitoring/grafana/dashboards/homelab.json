@@ -25,7 +25,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_gpu_temp_celsius",
+        "expr": "homelab_gpu_temp_celsius and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} {{name}}",
         "refId": "A"
       }]
@@ -41,7 +41,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_gpu_power_watts",
+        "expr": "homelab_gpu_power_watts and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} {{name}}",
         "refId": "A"
       }]
@@ -57,7 +57,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_gpu_memory_percent",
+        "expr": "homelab_gpu_memory_percent and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} {{name}}",
         "refId": "A"
       }]
@@ -73,7 +73,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_gpu_util_percent",
+        "expr": "homelab_gpu_util_percent and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} {{name}}",
         "refId": "A"
       }]
@@ -97,7 +97,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_cpu_temp_celsius",
+        "expr": "homelab_cpu_temp_celsius and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}}",
         "refId": "A"
       }]
@@ -113,7 +113,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_cpu_usage_percent",
+        "expr": "homelab_cpu_usage_percent and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}}",
         "refId": "A"
       }]
@@ -129,7 +129,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_memory_usage_percent",
+        "expr": "homelab_memory_usage_percent and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}}",
         "refId": "A"
       }]
@@ -153,7 +153,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_ssd_temp_celsius",
+        "expr": "homelab_ssd_temp_celsius and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} ssd{{index}}",
         "refId": "A"
       }]
@@ -169,7 +169,7 @@
       },
       "targets": [{
         "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-        "expr": "homelab_dimm_temp_celsius",
+        "expr": "homelab_dimm_temp_celsius and on(host) (homelab_host_online == 1)",
         "legendFormat": "{{host}} dimm{{index}}",
         "refId": "A"
       }]
