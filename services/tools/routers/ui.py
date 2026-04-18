@@ -25,24 +25,6 @@ _PAGE = """<!DOCTYPE html>
     button:hover { background: #444; }
     button.wake { border-color: #4f4; }
     button.shutdown { border-color: #f84; }
-    #modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7); z-index: 100;
-      align-items: center; justify-content: center;
-    }
-    #modal-overlay.show { display: flex; }
-    #modal {
-      background: #1e1e1e; border: 1px solid #444; border-radius: 6px;
-      padding: 1.5rem 2rem; min-width: 320px;
-    }
-    #modal h2 { margin: 0 0 1rem; color: #f84; font-size: 1rem; }
-    #modal input {
-      width: 100%; box-sizing: border-box;
-      background: #111; color: #eee; border: 1px solid #555;
-      padding: 0.4rem 0.6rem; border-radius: 3px; font-family: monospace;
-      margin-bottom: 1rem;
-    }
-    #modal .actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
   </style>
 </head>
 <body>
@@ -54,43 +36,7 @@ _PAGE = """<!DOCTYPE html>
     </tr>
     {rows}
   </table>
-
-  <div id="modal-overlay">
-    <div id="modal">
-      <h2 id="modal-title">Shutdown</h2>
-      <input type="password" id="modal-pw" placeholder="sudo password (blank if passwordless)" />
-      <div class="actions">
-        <button onclick="modalCancel()">Cancel</button>
-        <button class="shutdown" onclick="modalConfirm()">Confirm</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let _modalResolve = null;
-
-    function showModal(host) {
-      document.getElementById('modal-title').textContent = 'Shutdown ' + host;
-      const pw = document.getElementById('modal-pw');
-      pw.value = '';
-      document.getElementById('modal-overlay').classList.add('show');
-      pw.focus();
-      return new Promise(resolve => { _modalResolve = resolve; });
-    }
-    function modalCancel() {
-      document.getElementById('modal-overlay').classList.remove('show');
-      if (_modalResolve) _modalResolve(null);
-    }
-    function modalConfirm() {
-      const pw = document.getElementById('modal-pw').value;
-      document.getElementById('modal-overlay').classList.remove('show');
-      if (_modalResolve) _modalResolve(pw);
-    }
-    document.getElementById('modal-pw').addEventListener('keydown', e => {
-      if (e.key === 'Enter') modalConfirm();
-      if (e.key === 'Escape') modalCancel();
-    });
-
     async function postOrThrow(url, body) {
       const options = {method: 'POST'};
       if (body !== undefined) {
@@ -128,10 +74,10 @@ _PAGE = """<!DOCTYPE html>
       }
     }
     async function shutdown(host) {
-      const pw = await showModal(host);
-      if (pw === null) return;
       try {
-        await postOrThrow('/homelab/shutdown/' + host, {sudo_password: pw});
+        const sudoPassword = prompt('Shutdown ' + host + '\\nInput sudo password (leave blank if passwordless sudo):', '');
+        if (sudoPassword === null) return;
+        await postOrThrow('/homelab/shutdown/' + host, {sudo_password: sudoPassword});
         alert('Shutdown sent: ' + host);
       } catch (e) {
         alert('Shutdown failed: ' + e.message);
