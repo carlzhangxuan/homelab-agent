@@ -2,3 +2,4 @@ include:
   - ../../services/tools/compose.yml
   - ../../services/open-webui/compose.yml
   - ../../services/monitoring/compose.yml
+  - ../../services/tensorboard/compose.yml
