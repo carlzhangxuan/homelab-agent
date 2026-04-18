@@ -9,6 +9,7 @@ _PAGE = """<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="refresh" content="5">
   <title>Homelab</title>
   <style>
     body { font-family: monospace; background: #111; color: #eee; padding: 2rem; }
@@ -73,14 +74,6 @@ _PAGE = """<!DOCTYPE html>
         return {};
       }
     }
-    let _toastTimer = null;
-    function toast(msg, type) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.className = 'show ' + type;
-      if (_toastTimer) clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => { el.className = ''; }, 3000);
-    }
     async function wake(host) {
       try {
         const result = await postOrThrow('/homelab/wake/' + host, {wait_timeout_s: 90, poll_interval_s: 5});
@@ -106,7 +99,6 @@ _PAGE = """<!DOCTYPE html>
         toast('Shutdown failed: ' + e.message, 'err');
       }
     }
-    setInterval(() => location.reload(), 5000);
   </script>
 </body>
 </html>"""
