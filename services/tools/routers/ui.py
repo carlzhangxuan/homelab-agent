@@ -85,6 +85,22 @@ _PAGE = """<!DOCTYPE html>
 
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
     .pulse { animation: pulse 1s ease-in-out infinite; }
+
+    .footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem;
+              display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+    .footer button.link,
+    .footer a.link,
+    .footer .pathchip {
+      color: var(--accent); background: transparent;
+      border: 1px solid var(--line-bright); border-radius: 999px;
+      padding: 0.35rem 0.9rem; font-family: inherit; font-size: 0.85rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .footer button.link,
+    .footer a.link { cursor: pointer; text-decoration: none; }
+    .footer button.link:hover,
+    .footer a.link:hover { background: #1a2a3a; border-color: var(--accent); }
+    .footer .pathchip { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -101,6 +117,11 @@ _PAGE = """<!DOCTYPE html>
     </tr>
     {rows}
   </table>
+  <div class="footer">
+    <a class="link" href="http://localhost:3001/d/homelab-overview/homelab-overview?orgId=1&amp;from=now-5m&amp;to=now&amp;timezone=browser&amp;refresh=5s" target="_blank">Grafana · homelab-overview</a>
+    <button class="link" onclick="copyPath('file:///Volumes/titanX')">file:///Volumes/titanX</button>
+    <a class="link" href="http://localhost:6006/?darkMode=true#timeseries" target="_blank">tensorboard-5090</a>
+  </div>
   <script>
     const REFRESH_MS = 5000;
     const SHUTDOWN_TIMEOUT_MS = 120000;
@@ -159,6 +180,15 @@ _PAGE = """<!DOCTYPE html>
         throw new Error(msg);
       }
       try { return await resp.json(); } catch (_) { return {}; }
+    }
+
+    async function copyPath(path) {
+      try {
+        await navigator.clipboard.writeText(path);
+        toast('Copied — paste into address bar', 'ok');
+      } catch (e) {
+        toast('Copy failed: ' + e.message, 'err');
+      }
     }
 
     async function getHostOnline(host) {
