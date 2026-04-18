@@ -137,6 +137,9 @@ def _collect_one(host: str, cfg: dict):
     try:
         if cfg.get("local"):
             data = _collect_local()
+        elif cfg.get("ping_only"):
+            ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "true", timeout=4)
+            data = {}
         else:
             raw = ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "python3 -", METRICS_SCRIPT)
             data = json.loads(raw.strip())
