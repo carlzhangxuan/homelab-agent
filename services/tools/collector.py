@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import re
 import time
 
 from config import settings
@@ -123,6 +124,43 @@ def _collect_local() -> dict:
     }
 
 
+def _parse_battery(out: str) -> dict:
+    m = re.search(r'(\d+)%;\s*([\w\s]+?);', out)
+    if not m:
+        return {}
+    return {"battery_pct": int(m.group(1)), "battery_state": m.group(2).strip()}
+
+
+def _mb(token: str) -> int:
+    m = re.match(r'(\d+(?:\.\d+)?)([KMGT]?)', token)
+    if not m:
+        return 0
+    val = float(m.group(1))
+    mult = {"": 1/1024/1024, "K": 1/1024, "M": 1, "G": 1024, "T": 1024*1024}[m.group(2)]
+    return int(val * mult)
+
+
+def _parse_macos_probe(out: str) -> dict:
+    data = {}
+    cpu = re.search(r'CPU usage:.*?(\d+(?:\.\d+)?)%\s*idle', out)
+    if cpu:
+        data["cpu_pct"] = round(100 - float(cpu.group(1)), 1)
+    used_m = re.search(r'PhysMem:\s*(\S+)\s*used', out)
+    unused_m = re.search(r'(\S+)\s*unused', out)
+    if used_m and unused_m:
+        used_mb = _mb(used_m.group(1))
+        unused_mb = _mb(unused_m.group(1))
+        total_mb = used_mb + unused_mb
+        data["memory"] = {
+            "total_mb": total_mb,
+            "used_mb": used_mb,
+            "available_mb": unused_mb,
+            "pct": round(used_mb / total_mb * 100, 1) if total_mb else 0.0,
+        }
+    data.update(_parse_battery(out))
+    return data
+
+
 async def collect_loop():
     while True:
         tasks = [
@@ -138,8 +176,14 @@ def _collect_one(host: str, cfg: dict):
         if cfg.get("local"):
             data = _collect_local()
         elif cfg.get("ping_only"):
-            ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "true", timeout=4)
-            data = {}
+            if cfg.get("battery"):
+                out = ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"],
+                              'top -l 1 -n 0 | grep -E "^(CPU|PhysMem)"; pmset -g batt',
+                              timeout=6)
+                data = _parse_macos_probe(out)
+            else:
+                ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "true", timeout=4)
+                data = {}
         else:
             raw = ssh_run(cfg["ip"], cfg["user"], cfg["ssh_key"], "python3 -", METRICS_SCRIPT)
             data = json.loads(raw.strip())

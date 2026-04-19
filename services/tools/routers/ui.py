@@ -113,7 +113,7 @@ _PAGE = """<!DOCTYPE html>
   <table>
     <tr>
       <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
-      <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>Actions</th>
+      <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>BAT%</th><th>Actions</th>
     </tr>
     {rows}
   </table>
@@ -270,10 +270,10 @@ def _row(host: str, cfg: dict) -> str:
 
     if not snap:
         status_html = '<span class="unknown">-</span>'
-        cells = ['<td class="na">-</td>'] * 6
+        cells = ['<td class="na">-</td>'] * 7
     elif not snap.get("online", True):
         status_html = '<span class="offline">offline</span>'
-        cells = ['<td class="na">-</td>'] * 6
+        cells = ['<td class="na">-</td>'] * 7
     else:
         status_html = '<span class="online">online</span>'
         cpu_pct = snap.get("cpu_pct")
@@ -284,6 +284,12 @@ def _row(host: str, cfg: dict) -> str:
         gpu_w   = gpus[0]["power_w"] if gpus else None
         ssds    = snap.get("ssd_c", [])
         ssd_c   = f"{min(ssds):.0f}" if ssds else None
+        bat_pct = snap.get("battery_pct")
+        bat_state = snap.get("battery_state", "")
+        bat_txt = None
+        if bat_pct is not None:
+            mark = "+" if bat_state in ("charging", "charged", "AC attached") else ""
+            bat_txt = f"{bat_pct}{mark}"
 
         def cell(v): return f'<td>{v}</td>' if v is not None else '<td class="na">-</td>'
         cells = [
@@ -293,6 +299,7 @@ def _row(host: str, cfg: dict) -> str:
             cell(f"{gpu_c}" if gpu_c is not None else None),
             cell(f"{gpu_w}" if gpu_w is not None else None),
             cell(ssd_c),
+            cell(bat_txt),
         ]
 
     actions = ""
