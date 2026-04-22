@@ -249,6 +249,77 @@ _PAGE = """<!DOCTYPE html>
       margin-left: 0.3rem;
       font-size: 0.72rem;
     }
+    .progress-panel {
+      margin-top: 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #141414;
+      padding: 0.8rem;
+    }
+    .progress-title {
+      margin: 0 0 0.6rem 0;
+      color: #93c5fd;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .progress-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+      gap: 0.7rem;
+    }
+    .progress-row {
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: #121212;
+      padding: 0.55rem 0.65rem;
+    }
+    .progress-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+      margin-bottom: 0.4rem;
+    }
+    .progress-name {
+      color: var(--fg);
+      font-size: 0.74rem;
+      line-height: 1.3;
+    }
+    .progress-pct {
+      color: var(--muted);
+      font-size: 0.72rem;
+      min-width: 2.6rem;
+      text-align: right;
+    }
+    .progress-slider {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--slider-color, #f59e0b) 0%, var(--slider-color, #f59e0b) var(--pct, 0%), #2a2a2a var(--pct, 0%), #2a2a2a 100%);
+      outline: none;
+      cursor: pointer;
+    }
+    .progress-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      border: 2px solid #0f0f0f;
+      background: var(--slider-color, #f59e0b);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+    }
+    .progress-slider::-moz-range-thumb {
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      border: 2px solid #0f0f0f;
+      background: var(--slider-color, #f59e0b);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+    }
     .strategy-wrap {
       margin-top: 0.9rem;
       border: 1px solid var(--line-bright);
@@ -281,6 +352,61 @@ _PAGE = """<!DOCTYPE html>
       color: var(--fg);
       font-weight: 600;
     }
+    .strategy-list a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-left: 0.2rem;
+    }
+    .strategy-list a:hover {
+      text-decoration: underline;
+    }
+    .burnout-wrap {
+      margin-top: 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #13161d;
+      padding: 0.9rem;
+    }
+    .burnout-title {
+      margin: 0 0 0.55rem 0;
+      color: #7dd3fc;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .burnout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+    .burnout-card {
+      border: 1px solid #2a3341;
+      border-radius: 8px;
+      background: #10141a;
+      padding: 0.6rem 0.65rem;
+    }
+    .burnout-card h4 {
+      margin: 0 0 0.35rem 0;
+      font-size: 0.8rem;
+      color: #c7d2fe;
+      font-weight: 600;
+    }
+    .burnout-card ul {
+      margin: 0;
+      padding-left: 1rem;
+      color: #cbd5e1;
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+    .burnout-ratio {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #d1d5db;
+      line-height: 1.55;
+      border-top: 1px dashed #2a3341;
+      padding-top: 0.6rem;
+    }
+    .burnout-ratio strong { color: var(--fg); }
   </style>
 </head>
 <body>
@@ -354,14 +480,54 @@ _PAGE = """<!DOCTYPE html>
         <div id="roadmap-meta" class="roadmap-meta"></div>
         <div id="roadmap-page" class="roadmap-page"></div>
       </div>
+      <div id="project-progress" class="progress-panel"></div>
       <div class="strategy-wrap">
         <h3 class="strategy-title">💡 战略要点</h3>
         <ul class="strategy-list">
-          <li><strong>交叉 = 最大杠杆:</strong> vLLM-Omni Q2 路线含 diffusion serving。你同时做 vLLM + diffusion，贡献 PR 或写深度分析 → 面试直接差异化。</li>
+          <li><strong>交叉 = 最大杠杆:</strong> <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni</a> Q2 路线含 diffusion serving。你同时做 vLLM + diffusion，贡献 PR 或写深度分析 → 面试直接差异化。</li>
           <li><strong>Anthropic agent 4 篇必读:</strong> Building Effective Agents / Context Engineering / Writing Tools / Long-Running Harnesses → 你的 agent 对标这些 pattern。</li>
           <li><strong>面试不是 LeetCode:</strong> CodeSignal = 90min 系统构建 (4级加约束); Onsite = system design (inference serving / distributed training / eval) + AI safety。</li>
           <li><strong>P0 完成 → 立刻输出:</strong> README / 图 / benchmark CSV / blog 草稿 / demo。Blog = 英语 + portfolio + 面试素材三合一。</li>
         </ul>
+      </div>
+      <div class="burnout-wrap">
+        <h3 class="burnout-title">🛡 防 Burn Out 指南</h3>
+        <div class="burnout-grid">
+          <article class="burnout-card">
+            <h4>执行结构</h4>
+            <ul>
+              <li>主线只保留 1 条: Agent + vLLM / inference infra</li>
+              <li>副线只保留 1 条: Diffusion / Flow 稳定积累</li>
+              <li>保温线: 英语表达 + system design + leetcode</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>日上限规则</h4>
+            <ul>
+              <li>深度工程任务: 每天最多 1 块</li>
+              <li>深度理论任务: 每天最多 1 块</li>
+              <li>面试准备: 每天 45-60 分钟</li>
+              <li>晚上不做新重设计, 只整理/阅读</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>风险信号</h4>
+            <ul>
+              <li>黄色: TODO 快速增长, Done 变少, 切换太频繁</li>
+              <li>红色: 连续几天不想开项目, 只刷资料不动手</li>
+              <li>到黄色立刻减负, 不靠意志硬顶</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>硬规则</h4>
+            <ul>
+              <li>任何时刻只允许两个开放工程问题</li>
+              <li>每天有产出, 但不要求四线齐推</li>
+              <li>每周至少一个可见成果和一次回顾</li>
+            </ul>
+          </article>
+        </div>
+        <p class="burnout-ratio"><strong>当前建议负载比例:</strong> 50% Agent + Inference Infra · 25% Diffusion · 15% 英语/项目表达 · 10% LeetCode/System Design</p>
       </div>
     </section>
   </div>
@@ -709,6 +875,79 @@ _PAGE = """<!DOCTYPE html>
       return track.sections.filter(s => s.priority === ROADMAP_STATE.priority);
     }
 
+    function progressStorageKey(trackKey, sectionTitle) {
+      return 'roadmap_progress::' + trackKey + '::' + sectionTitle;
+    }
+
+    function readProgress(trackKey, sectionTitle) {
+      const key = progressStorageKey(trackKey, sectionTitle);
+      const raw = localStorage.getItem(key);
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return 0;
+      return Math.max(0, Math.min(100, Math.round(n)));
+    }
+
+    function writeProgress(trackKey, sectionTitle, value) {
+      const key = progressStorageKey(trackKey, sectionTitle);
+      localStorage.setItem(key, String(value));
+    }
+
+    function progressColorClass(value) {
+      if (value >= 100) return '#06b6d4';
+      if (value >= 70) return '#22c55e';
+      if (value >= 40) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function renderProgressPanel(sections) {
+      const panelEl = document.getElementById('project-progress');
+      if (!panelEl) return;
+
+      if (!sections.length) {
+        panelEl.innerHTML = '<h3 class="progress-title">项目进度 Slider</h3><div class="roadmap-meta">当前筛选无项目</div>';
+        return;
+      }
+
+      panelEl.innerHTML =
+        '<h3 class="progress-title">项目进度 Slider</h3>' +
+        '<div class="progress-list">' +
+        sections.map((sec) => {
+          const p = readProgress(ROADMAP_STATE.track, sec.title || '');
+          const color = progressColorClass(p);
+          return (
+            '<article class="progress-row">' +
+            '<div class="progress-row-top">' +
+            '<div class="progress-name">' + escHtml(sec.title || '') + '</div>' +
+            '<div class="progress-pct">' + p + '%</div>' +
+            '</div>' +
+            '<input class="progress-slider" type="range" min="0" max="100" step="1" value="' + p + '" style="--pct: ' + p + '%; --slider-color: ' + color + ';" data-progress-track="' + escHtml(ROADMAP_STATE.track) + '" data-progress-title="' + escHtml(sec.title || '') + '" />' +
+            '</article>'
+          );
+        }).join('') +
+        '</div>';
+
+      panelEl.querySelectorAll('.progress-slider').forEach((sliderEl) => {
+        sliderEl.addEventListener('input', () => {
+          let v = Number(sliderEl.value);
+          if (!Number.isFinite(v)) v = 0;
+          v = Math.max(0, Math.min(100, Math.round(v)));
+          sliderEl.value = String(v);
+
+          const color = progressColorClass(v);
+          sliderEl.style.setProperty('--pct', v + '%');
+          sliderEl.style.setProperty('--slider-color', color);
+
+          const pctEl = sliderEl.closest('.progress-row')?.querySelector('.progress-pct');
+          if (pctEl) pctEl.textContent = v + '%';
+
+          const track = sliderEl.dataset.progressTrack || ROADMAP_STATE.track;
+          const title = sliderEl.dataset.progressTitle || '';
+          writeProgress(track, title, v);
+        });
+      });
+    }
+
+
     function roadmapRenderTabs() {
       const tabsEl = document.getElementById('roadmap-tabs');
       const filterEl = document.getElementById('roadmap-filters');
@@ -764,6 +1003,8 @@ _PAGE = """<!DOCTYPE html>
           '</article>'
         );
       }).join('');
+
+      renderProgressPanel(sections);
     }
 
     function roadmapRender() {
