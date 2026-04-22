@@ -360,6 +360,60 @@ _PAGE = """<!DOCTYPE html>
     .strategy-list a:hover {
       text-decoration: underline;
     }
+    .strategy-omni {
+      margin-top: 0.75rem;
+      border-top: 1px dashed #2a2a2a;
+      padding-top: 0.7rem;
+    }
+    .strategy-omni h4 {
+      margin: 0 0 0.45rem 0;
+      color: #93c5fd;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .strategy-omni p {
+      margin: 0.35rem 0;
+      font-size: 0.76rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+    }
+    .strategy-omni ul {
+      margin: 0.3rem 0 0.5rem;
+      padding-left: 1rem;
+      color: #d1d5db;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+    .strategy-omni strong { color: var(--fg); }
+    .strategy-omni a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .strategy-omni a:hover { text-decoration: underline; }
+    .strategy-omni-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.65rem;
+    }
+    .strategy-omni-item {
+      border: 1px solid #2a3341;
+      border-radius: 8px;
+      background: #10141a;
+      padding: 0.65rem;
+    }
+    .strategy-omni-item h5 {
+      margin: 0 0 0.35rem 0;
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .strategy-omni-item p {
+      margin: 0.22rem 0;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
     .burnout-wrap {
       margin-top: 0.9rem;
       border: 1px solid var(--line-bright);
@@ -489,6 +543,83 @@ _PAGE = """<!DOCTYPE html>
           <li><strong>面试不是 LeetCode:</strong> CodeSignal = 90min 系统构建 (4级加约束); Onsite = system design (inference serving / distributed training / eval) + AI safety。</li>
           <li><strong>P0 完成 → 立刻输出:</strong> README / 图 / benchmark CSV / blog 草稿 / demo。Blog = 英语 + portfolio + 面试素材三合一。</li>
         </ul>
+        <div class="strategy-omni">
+          <h4>vLLM-Omni 优先级总结（用于 2 个月执行）</h4>
+          <p><strong>S级（现在最有搞头）:</strong> Prefix Cache、KV offload、Quantization、Diffusion continuous batching、Model Runner V2 执行层理解。</p>
+          <p><strong>A级（跟进但不深挖）:</strong> Diffusers backend、工程可用性/CI、Benchmark 体系、disaggregated serving 概念理解。</p>
+          <p><strong>B级（知道方向即可）:</strong> 多硬件支持、音视频流式、RL integration with veRL。</p>
+
+          <p><strong>P0 立刻补:</strong></p>
+          <ul>
+            <li>Prefix cache</li>
+            <li>KV offload</li>
+            <li>prefill / decode / KV cache 基础</li>
+            <li>continuous batching 基础</li>
+            <li>diffusion serving 与 LLM serving 的差异</li>
+          </ul>
+
+          <p><strong>P1 接着补:</strong></p>
+          <ul>
+            <li>Quantization 路线</li>
+            <li>runner / scheduler / execution loop 分层</li>
+            <li>diffusion optimization 的系统视角</li>
+            <li>Diffusers backend 生态</li>
+          </ul>
+
+          <p><strong>P2 后续再补:</strong> disaggregated serving、多硬件 backend、流式音视频、veRL integration。</p>
+          <p><strong>动作顺序:</strong> 先补 vLLM 系统骨架（cache/batching/benchmark）→ 再叠 diffusion serving 视角 → 再接量化与部署 → 最后压成面试故事。</p>
+          <p><strong>一句话结论:</strong> 最有搞头的是 Prefix Cache、KV offload、Diffusion continuous batching；最该补的是 KV cache / batching / runner abstraction / diffusion serving 四块基础。</p>
+
+          <p><strong>文献与规范锚点（只做杠杆）:</strong>
+            <a href="https://arxiv.org/abs/2309.06180" target="_blank">PagedAttention</a> ·
+            <a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca/Continuous Batching</a> ·
+            <a href="https://arxiv.org/abs/2302.01318" target="_blank">Speculative Decoding</a> ·
+            <a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a> ·
+            <a href="https://docs.vllm.ai/en/latest/design/kernel/paged_attention.html" target="_blank">PagedAttention Design</a> ·
+            <a href="https://github.com/vllm-project/vllm/issues/39749" target="_blank">Model Runner V2</a> ·
+            <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni Roadmap</a>
+          </p>
+
+          <p><strong>对上方现有计划的指针（不另作计划）:</strong></p>
+          <ul>
+            <li><strong>vLLM / Inference Infra:</strong> 对齐「核心论文 & 源码精读」+「验证高级特性 + 量化」+「进阶 & 面试加分」。</li>
+            <li><strong>Diffusion / Flow:</strong> 对齐「最小实验 + 可视化」与「DiT + 现代方向 + Blog」，把 diffusion serving 作为交叉验证位。</li>
+            <li><strong>Agent / Runtime:</strong> 对齐「Agent → 部署闭环 + Eval」，把 Prefix Cache / KV offload / Quantization 的结论沉淀到 pipeline。</li>
+            <li><strong>输出优先:</strong> 每完成一个杠杆点即产出 benchmark 表、图、README 片段或 blog 草稿，服务现有主线叙事。</li>
+          </ul>
+
+          <div class="strategy-omni-map">
+            <article class="strategy-omni-item">
+              <h5>Prefix Cache</h5>
+              <p><strong>看什么:</strong> <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html" target="_blank">Automatic Prefix Caching</a>、<a href="https://arxiv.org/abs/2309.06180" target="_blank">PagedAttention</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 里的「核心论文 & 源码精读」+「验证高级特性 + 量化」；同时回流到 `Agent / Runtime` 的「Agent → 部署闭环 + Eval」。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>KV Offload</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm/issues/37160" target="_blank">KV Cache CPU Offloading</a>、<a href="https://docs.vllm.ai/en/latest/design/kernel/paged_attention.html" target="_blank">PagedAttention Design</a>、<a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「验证高级特性 + 量化」和基线 benchmark；用你的 homelab 长上下文实验去验证 tradeoff。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Quantization</h5>
+              <p><strong>看什么:</strong> <a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>、<a href="https://arxiv.org/abs/2306.00978" target="_blank">AWQ</a>、<a href="https://arxiv.org/abs/2210.17323" target="_blank">GPTQ</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「验证高级特性 + 量化」，以及 `Agent / Runtime` 的「训练后自动量化 + vLLM deploy + benchmark」。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Diffusion Continuous Batching</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni Roadmap</a>、<a href="https://arxiv.org/abs/2006.11239" target="_blank">DDPM</a>、<a href="https://arxiv.org/abs/2010.02502" target="_blank">DDIM</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `Diffusion / Flow` 的「最小实验 + 可视化」+「DiT + 现代方向 + Blog」；这里不是新主线，而是你现有 diffusion 主线的 runtime 杠杆。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Model Runner V2</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm/issues/39749" target="_blank">Model Runner V2</a>、<a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「进阶 & 面试加分」+ `Agent / Runtime` 的「Coding Agent 完善 + Run 记录」；重点是补 execution loop / runner abstraction，不是现在重写系统。</p>
+            </article>
+          </div>
+        </div>
       </div>
       <div class="burnout-wrap">
         <h3 class="burnout-title">🛡 防 Burn Out 指南</h3>
