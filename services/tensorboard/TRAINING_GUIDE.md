@@ -1,34 +1,38 @@
 # Training Guide (4090 + 5090)
 
-本文件统一约定两台训练机的 TensorBoard 日志输出路径，避免实验日志混乱。
+This document defines the TensorBoard log directory conventions for the two
+training machines so experiment logs stay organized and easy to browse.
 
-机器与环境路径配置文件：`services/tensorboard/storage_paths.yaml`
+Machine and path mapping config:
+`services/tensorboard/storage_paths.yaml`
 
-## 1) 日志根目录约定
+## 1) Log root conventions
 
-- `5090` 日志根目录：`/mnt/ssd4t/logs`
-- `4090` 日志根目录：`/home/zx/lab-small/tensorboard`
+- `5090` log root: `/mnt/ssd4t/logs`
+- `4090` log root: `/home/zx/lab-small/tensorboard`
 
-每个实验都创建独立子目录：
+Each experiment should use its own subdirectory:
 
-- `5090` 示例：`/mnt/ssd4t/logs/cifar10-test`
-- `4090` 示例：`/home/zx/lab-small/tensorboard/cifar10-test`
+- `5090` example: `/mnt/ssd4t/logs/ddpm-sandbox-001`
+- `4090` example: `/home/zx/lab-small/tensorboard/ddpm-sandbox-001`
 
-## 2) 与 macmini 的映射关系
+## 2) Mapping to macmini
 
 - `5090:/mnt/ssd4t/logs` -> `mac:/Users/zx/mnt/5090`
 - `4090:/home/zx/lab-small/tensorboard` -> `mac:/Users/zx/mnt/4090`
 
-当前 TensorBoard 容器会读取：
+The current TensorBoard container reads:
 
 - `5090:/data/5090`
 - `4090:/data/4090`
 
-对应 UI 里会显示为 `5090/<run_name>` 和 `4090/<run_name>`。
+In the UI, runs appear as `5090/<run_name>` and `4090/<run_name>`.
 
-## 3) 训练脚本应如何设置 log_dir
+## 3) How training scripts should set `log_dir`
 
-建议统一按 `实验名` 输出，避免互相覆盖。
+Use the experiment name consistently to avoid collisions. Prefer DDPM-style
+names instead of continuing to reuse early smoke-test names like
+`cifar10-test`.
 
 `5090`:
 
@@ -42,7 +46,7 @@ log_dir = "/mnt/ssd4t/logs/<exp_name>"
 log_dir = "/home/zx/lab-small/tensorboard/<exp_name>"
 ```
 
-如果要按环境隔离，建议使用：
+If you want environment separation, use:
 
 - `sandbox`:
   - `5090`: `/mnt/ssd4t/logs/sandbox/<exp_name>`
@@ -51,15 +55,15 @@ log_dir = "/home/zx/lab-small/tensorboard/<exp_name>"
   - `5090`: `/mnt/ssd4t/logs/prod/<exp_name>`
   - `4090`: `/home/zx/lab-small/tensorboard/prod/<exp_name>`
 
-## 4) 4090 目录初始化（如需）
+## 4) 4090 directory initialization
 
-如果 4090 上目录还没准备好，执行：
+If the 4090-side directory layout is not ready yet, run:
 
 ```bash
 mkdir -p /home/zx/lab-small/{tensorboard,checkpoints,artifacts,datasets,scripts,tmp}
 ```
 
-如果你想把“轻量实验”和“正式实验”分离，也可以再加：
+If you want to separate lightweight and more formal runs, you can also add:
 
 ```bash
 mkdir -p /home/zx/lab-small/tensorboard/{sandbox,prod}
