@@ -471,11 +471,15 @@ _PAGE = """<!DOCTYPE html>
   </div>
   <div id="toast"></div>
   <table>
-    <tr>
-      <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
-      <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>BAT%</th><th>Actions</th>
-    </tr>
+    <thead>
+      <tr>
+        <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
+        <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>BAT%</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="host-rows">
     {rows}
+    </tbody>
   </table>
   <div class="sections">
     <section>
@@ -894,7 +898,19 @@ _PAGE = """<!DOCTYPE html>
     function endBusy() {
       _busy = Math.max(0, _busy - 1);
       setActivity();
-      if (_busy === 0) location.reload();
+      if (_busy === 0) refreshRows();
+    }
+
+    async function refreshRows() {
+      try {
+        const resp = await fetch('/ui/rows', {cache: 'no-store'});
+        if (!resp.ok) return;
+        const html = await resp.text();
+        const tbody = document.getElementById('host-rows');
+        if (tbody) tbody.innerHTML = html;
+        _lastRefresh = Date.now();
+        updateRefreshLabel();
+      } catch (_) {}
     }
 
     async function postOrThrow(url, body) {
@@ -1146,7 +1162,7 @@ _PAGE = """<!DOCTYPE html>
     roadmapRender();
 
     setInterval(updateRefreshLabel, 1000);
-    setInterval(() => { if (_busy === 0) location.reload(); }, REFRESH_MS);
+    setInterval(() => { if (_busy === 0) refreshRows(); }, REFRESH_MS);
   </script>
 </body>
 </html>"""
@@ -1211,3 +1227,9 @@ def _row(host: str, cfg: dict) -> str:
 def ui():
     rows = "\n".join(_row(host, cfg) for host, cfg in settings.hosts.items())
     return HTMLResponse(_PAGE.replace("{rows}", rows))
+
+
+@router.get("/ui/rows", response_class=HTMLResponse)
+def ui_rows():
+    rows = "\n".join(_row(host, cfg) for host, cfg in settings.hosts.items())
+    return HTMLResponse(rows)
