@@ -86,46 +86,809 @@ _PAGE = """<!DOCTYPE html>
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
     .pulse { animation: pulse 1s ease-in-out infinite; }
 
-    .footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem;
-              display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
-    .footer button.link,
-    .footer a.link,
-    .footer .pathchip {
+    .sections { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .sections h2 {
+      color: var(--muted); font-size: 0.75rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 0 0 0.8rem 0;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .link-group {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .link-group .label {
+      color: var(--fg); font-size: 0.85rem;
+      min-width: 14rem;
+    }
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+      gap: 0.5rem 0.8rem;
+    }
+    a.link, button.link {
       color: var(--accent); background: transparent;
       border: 1px solid var(--line-bright); border-radius: 999px;
-      padding: 0.35rem 0.9rem; font-family: inherit; font-size: 0.85rem;
+      padding: 0.3rem 0.8rem; font-family: inherit; font-size: 0.8rem;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+      display: inline-block;
+    }
+    a.link:hover, button.link:hover { background: #1a2a3a; border-color: var(--accent); }
+    a.link.sub { font-size: 0.75rem; padding: 0.2rem 0.6rem; color: var(--muted); }
+    a.link.sub:hover { color: var(--accent); }
+    a.repo {
+      display: block;
+      padding: 0.5rem 0.9rem;
+      border: 1px solid var(--line-bright); border-radius: 6px;
+      color: var(--fg); text-decoration: none;
+      font-size: 0.85rem;
       transition: background 0.15s, border-color 0.15s;
     }
-    .footer button.link,
-    .footer a.link { cursor: pointer; text-decoration: none; }
-    .footer button.link:hover,
-    .footer a.link:hover { background: #1a2a3a; border-color: var(--accent); }
-    .footer .pathchip { color: var(--accent); }
+    a.repo:hover { background: var(--panel); border-color: var(--accent); }
+    a.repo .repo-name { color: var(--accent); font-weight: 500; }
+    a.repo .repo-org { color: var(--muted); font-size: 0.75rem; margin-left: 0.4rem; }
+
+    .roadmap-wrap {
+      margin-top: 1rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .roadmap-meta { color: var(--muted); font-size: 0.8rem; }
+    .roadmap-tabs, .roadmap-filters {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    button.roadmap-tab, button.roadmap-filter {
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.75rem;
+      border: 1px solid var(--line-bright);
+      background: #131313;
+      color: var(--muted);
+    }
+    button.roadmap-tab.active, button.roadmap-filter.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #142230;
+    }
+    .roadmap-page {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+      max-height: 72vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      align-content: start;
+      padding-right: 0.35rem;
+    }
+    .roadmap-card {
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #141414;
+      overflow: hidden;
+    }
+    .roadmap-card-head {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--line);
+      background: #181818;
+    }
+    .roadmap-pri {
+      font-size: 0.7rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 999px;
+      padding: 0.08rem 0.45rem;
+      color: var(--warn);
+    }
+    .roadmap-title {
+      font-size: 0.82rem;
+      color: var(--fg);
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .roadmap-count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .roadmap-items {
+      list-style: none;
+      margin: 0;
+      padding: 0.25rem 0.7rem 0.6rem;
+    }
+    .roadmap-items li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.28rem 0;
+      border-bottom: 1px dashed #242424;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #ddd;
+    }
+    .roadmap-items li:last-child { border-bottom: none; }
+    .roadmap-dot {
+      width: 0.35rem;
+      height: 0.35rem;
+      border-radius: 50%;
+      margin-top: 0.33rem;
+      background: var(--accent);
+      flex: 0 0 auto;
+    }
+    .roadmap-tag {
+      margin-left: 0.35rem;
+      color: var(--muted);
+      font-size: 0.7rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 999px;
+      padding: 0.02rem 0.36rem;
+      white-space: nowrap;
+    }
+    .roadmap-items a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-left: 0.3rem;
+      font-size: 0.72rem;
+    }
+    .progress-panel {
+      margin-top: 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #141414;
+      padding: 0.8rem;
+    }
+    .progress-title {
+      margin: 0 0 0.6rem 0;
+      color: #93c5fd;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .progress-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+      gap: 0.7rem;
+    }
+    .progress-row {
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: #121212;
+      padding: 0.55rem 0.65rem;
+    }
+    .progress-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+      margin-bottom: 0.4rem;
+    }
+    .progress-name {
+      color: var(--fg);
+      font-size: 0.74rem;
+      line-height: 1.3;
+    }
+    .progress-pct {
+      color: var(--muted);
+      font-size: 0.72rem;
+      min-width: 2.6rem;
+      text-align: right;
+    }
+    .progress-slider {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--slider-color, #f59e0b) 0%, var(--slider-color, #f59e0b) var(--pct, 0%), #2a2a2a var(--pct, 0%), #2a2a2a 100%);
+      outline: none;
+      cursor: pointer;
+    }
+    .progress-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      border: 2px solid #0f0f0f;
+      background: var(--slider-color, #f59e0b);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+    }
+    .progress-slider::-moz-range-thumb {
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      border: 2px solid #0f0f0f;
+      background: var(--slider-color, #f59e0b);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+    }
+    .strategy-wrap {
+      margin-top: 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #141414;
+      padding: 0.9rem;
+    }
+    .strategy-title {
+      margin: 0 0 0.55rem 0;
+      color: #a78bfa;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .strategy-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .strategy-list li {
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: #d6d6d6;
+      border-left: 2px solid #2a2a2a;
+      padding-left: 0.55rem;
+    }
+    .strategy-list strong {
+      color: var(--fg);
+      font-weight: 600;
+    }
+    .strategy-list a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-left: 0.2rem;
+    }
+    .strategy-list a:hover {
+      text-decoration: underline;
+    }
+    .strategy-omni {
+      margin-top: 0.75rem;
+      border-top: 1px dashed #2a2a2a;
+      padding-top: 0.7rem;
+    }
+    .strategy-omni h4 {
+      margin: 0 0 0.45rem 0;
+      color: #93c5fd;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .strategy-omni p {
+      margin: 0.35rem 0;
+      font-size: 0.76rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+    }
+    .strategy-omni ul {
+      margin: 0.3rem 0 0.5rem;
+      padding-left: 1rem;
+      color: #d1d5db;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+    .strategy-omni strong { color: var(--fg); }
+    .strategy-omni a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .strategy-omni a:hover { text-decoration: underline; }
+    .strategy-omni-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.65rem;
+    }
+    .strategy-omni-item {
+      border: 1px solid #2a3341;
+      border-radius: 8px;
+      background: #10141a;
+      padding: 0.65rem;
+    }
+    .strategy-omni-item h5 {
+      margin: 0 0 0.35rem 0;
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .strategy-omni-item p {
+      margin: 0.22rem 0;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+    .burnout-wrap {
+      margin-top: 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 8px;
+      background: #13161d;
+      padding: 0.9rem;
+    }
+    .burnout-title {
+      margin: 0 0 0.55rem 0;
+      color: #7dd3fc;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .burnout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+    .burnout-card {
+      border: 1px solid #2a3341;
+      border-radius: 8px;
+      background: #10141a;
+      padding: 0.6rem 0.65rem;
+    }
+    .burnout-card h4 {
+      margin: 0 0 0.35rem 0;
+      font-size: 0.8rem;
+      color: #c7d2fe;
+      font-weight: 600;
+    }
+    .burnout-card ul {
+      margin: 0;
+      padding-left: 1rem;
+      color: #cbd5e1;
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+    .burnout-ratio {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #d1d5db;
+      line-height: 1.55;
+      border-top: 1px dashed #2a3341;
+      padding-top: 0.6rem;
+    }
+    .burnout-ratio strong { color: var(--fg); }
+
+    .clock {
+      display: flex;
+      align-items: baseline;
+      gap: 0.9rem;
+      margin: -0.3rem 0 1.2rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .clock-time {
+      color: #8be9fd;
+      font-size: 1.45rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      font-feature-settings: "tnum";
+    }
+    .clock-date {
+      color: #6272a4;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
   <h1>Homelab</h1>
+  <div class="clock">
+    <span class="clock-time" id="clk-time">--:--:--</span>
+    <span class="clock-date" id="clk-date">— · ----.--.--</span>
+  </div>
   <div class="bar">
     <span>auto-refresh every <span id="refresh-s">5</span>s · <span id="last-refresh">just now</span></span>
     <span id="activity"></span>
   </div>
   <div id="toast"></div>
   <table>
-    <tr>
-      <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
-      <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>BAT%</th><th>Actions</th>
-    </tr>
+    <thead>
+      <tr>
+        <th>Host</th><th>Status</th><th>CPU%</th><th>CPU°C</th>
+        <th>Mem%</th><th>GPU°C</th><th>GPU W</th><th>SSD°C</th><th>BAT%</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="host-rows">
     {rows}
+    </tbody>
   </table>
-  <div class="footer">
-    <a class="link" href="http://localhost:3001/d/homelab-overview/homelab-overview?orgId=1&amp;from=now-5m&amp;to=now&amp;timezone=browser&amp;refresh=5s" target="_blank">Grafana · homelab-overview</a>
-    <button class="link" onclick="copyPath('file:///Volumes/titanX')">file:///Volumes/titanX</button>
-    <a class="link" href="http://localhost:6006/?darkMode=true#timeseries" target="_blank">tensorboard</a>
+  <div class="sections">
+    <section>
+      <h2>Services</h2>
+      <div class="link-group">
+        <span class="label">Grafana · homelab-overview</span>
+        <a class="link sub" href="http://192.168.10.32:3001/d/homelab-overview/homelab-overview?orgId=1&amp;from=now-5m&amp;to=now&amp;timezone=browser&amp;refresh=5s" target="_blank">LAN</a>
+        <a class="link sub" href="http://100.75.243.9:3001/d/homelab-overview/homelab-overview?orgId=1&amp;from=now-5m&amp;to=now&amp;timezone=browser&amp;refresh=5s" target="_blank">Tailscale</a>
+      </div>
+      <div class="link-group">
+        <span class="label">TensorBoard</span>
+        <a class="link sub" href="http://192.168.10.32:6006/?darkMode=true#timeseries" target="_blank">LAN</a>
+        <a class="link sub" href="http://100.75.243.9:6006/?darkMode=true#timeseries" target="_blank">Tailscale</a>
+      </div>
+      <div class="link-group">
+        <span class="label">titanX volume</span>
+        <button class="link sub" onclick="copyPath('file:///Volumes/titanX')">file:///Volumes/titanX</button>
+      </div>
+    </section>
+    <section>
+      <h2>Repositories</h2>
+      <div class="repo-grid">
+        <a class="repo" href="https://github.com/carlzhangxuan/auto-research" target="_blank">
+          <span class="repo-name">auto-research</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/homelab-experiments" target="_blank">
+          <span class="repo-name">homelab-experiments</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/homelab-agent" target="_blank">
+          <span class="repo-name">homelab-agent</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/homelab-init" target="_blank">
+          <span class="repo-name">homelab-init</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/research-notes" target="_blank">
+          <span class="repo-name">research-notes</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/ai-notes" target="_blank">
+          <span class="repo-name">ai-notes</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+        <a class="repo" href="https://github.com/GDP-lab/flow_bedrock" target="_blank">
+          <span class="repo-name">flow_bedrock</span><span class="repo-org">GDP-lab</span>
+        </a>
+        <a class="repo" href="https://github.com/carlzhangxuan/carlzhangxuan.github.io" target="_blank">
+          <span class="repo-name">carlzhangxuan.github.io</span><span class="repo-org">carlzhangxuan</span>
+        </a>
+      </div>
+    </section>
+    <section>
+      <h2>Roadmap</h2>
+      <div class="roadmap-wrap">
+        <div class="roadmap-head">
+          <div id="roadmap-tabs" class="roadmap-tabs"></div>
+          <div id="roadmap-filters" class="roadmap-filters"></div>
+        </div>
+        <div id="roadmap-meta" class="roadmap-meta"></div>
+        <div id="roadmap-page" class="roadmap-page"></div>
+      </div>
+      <div id="project-progress" class="progress-panel"></div>
+      <div class="strategy-wrap">
+        <h3 class="strategy-title">💡 战略要点</h3>
+        <ul class="strategy-list">
+          <li><strong>交叉 = 最大杠杆:</strong> <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni</a> Q2 路线含 diffusion serving。你同时做 vLLM + diffusion，贡献 PR 或写深度分析 → 面试直接差异化。</li>
+          <li><strong>Anthropic agent 4 篇必读:</strong> Building Effective Agents / Context Engineering / Writing Tools / Long-Running Harnesses → 你的 agent 对标这些 pattern。</li>
+          <li><strong>面试不是 LeetCode:</strong> CodeSignal = 90min 系统构建 (4级加约束); Onsite = system design (inference serving / distributed training / eval) + AI safety。</li>
+          <li><strong>P0 完成 → 立刻输出:</strong> README / 图 / benchmark CSV / blog 草稿 / demo。Blog = 英语 + portfolio + 面试素材三合一。</li>
+        </ul>
+        <div class="strategy-omni">
+          <h4>vLLM-Omni 优先级总结（用于 2 个月执行）</h4>
+          <p><strong>S级（现在最有搞头）:</strong> Prefix Cache、KV offload、Quantization、Diffusion continuous batching、Model Runner V2 执行层理解。</p>
+          <p><strong>A级（跟进但不深挖）:</strong> Diffusers backend、工程可用性/CI、Benchmark 体系、disaggregated serving 概念理解。</p>
+          <p><strong>B级（知道方向即可）:</strong> 多硬件支持、音视频流式、RL integration with veRL。</p>
+
+          <p><strong>P0 立刻补:</strong></p>
+          <ul>
+            <li>Prefix cache</li>
+            <li>KV offload</li>
+            <li>prefill / decode / KV cache 基础</li>
+            <li>continuous batching 基础</li>
+            <li>diffusion serving 与 LLM serving 的差异</li>
+          </ul>
+
+          <p><strong>P1 接着补:</strong></p>
+          <ul>
+            <li>Quantization 路线</li>
+            <li>runner / scheduler / execution loop 分层</li>
+            <li>diffusion optimization 的系统视角</li>
+            <li>Diffusers backend 生态</li>
+          </ul>
+
+          <p><strong>P2 后续再补:</strong> disaggregated serving、多硬件 backend、流式音视频、veRL integration。</p>
+          <p><strong>动作顺序:</strong> 先补 vLLM 系统骨架（cache/batching/benchmark）→ 再叠 diffusion serving 视角 → 再接量化与部署 → 最后压成面试故事。</p>
+          <p><strong>一句话结论:</strong> 最有搞头的是 Prefix Cache、KV offload、Diffusion continuous batching；最该补的是 KV cache / batching / runner abstraction / diffusion serving 四块基础。</p>
+
+          <p><strong>文献与规范锚点（只做杠杆）:</strong>
+            <a href="https://arxiv.org/abs/2309.06180" target="_blank">PagedAttention</a> ·
+            <a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca/Continuous Batching</a> ·
+            <a href="https://arxiv.org/abs/2302.01318" target="_blank">Speculative Decoding</a> ·
+            <a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a> ·
+            <a href="https://docs.vllm.ai/en/latest/design/kernel/paged_attention.html" target="_blank">PagedAttention Design</a> ·
+            <a href="https://github.com/vllm-project/vllm/issues/39749" target="_blank">Model Runner V2</a> ·
+            <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni Roadmap</a>
+          </p>
+
+          <p><strong>对上方现有计划的指针（不另作计划）:</strong></p>
+          <ul>
+            <li><strong>vLLM / Inference Infra:</strong> 对齐「核心论文 & 源码精读」+「验证高级特性 + 量化」+「进阶 & 面试加分」。</li>
+            <li><strong>Diffusion / Flow:</strong> 对齐「最小实验 + 可视化」与「DiT + 现代方向 + Blog」，把 diffusion serving 作为交叉验证位。</li>
+            <li><strong>Agent / Runtime:</strong> 对齐「Agent → 部署闭环 + Eval」，把 Prefix Cache / KV offload / Quantization 的结论沉淀到 pipeline。</li>
+            <li><strong>输出优先:</strong> 每完成一个杠杆点即产出 benchmark 表、图、README 片段或 blog 草稿，服务现有主线叙事。</li>
+          </ul>
+
+          <div class="strategy-omni-map">
+            <article class="strategy-omni-item">
+              <h5>Prefix Cache</h5>
+              <p><strong>看什么:</strong> <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html" target="_blank">Automatic Prefix Caching</a>、<a href="https://arxiv.org/abs/2309.06180" target="_blank">PagedAttention</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 里的「核心论文 & 源码精读」+「验证高级特性 + 量化」；同时回流到 `Agent / Runtime` 的「Agent → 部署闭环 + Eval」。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>KV Offload</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm/issues/37160" target="_blank">KV Cache CPU Offloading</a>、<a href="https://docs.vllm.ai/en/latest/design/kernel/paged_attention.html" target="_blank">PagedAttention Design</a>、<a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「验证高级特性 + 量化」和基线 benchmark；用你的 homelab 长上下文实验去验证 tradeoff。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Quantization</h5>
+              <p><strong>看什么:</strong> <a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>、<a href="https://arxiv.org/abs/2306.00978" target="_blank">AWQ</a>、<a href="https://arxiv.org/abs/2210.17323" target="_blank">GPTQ</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「验证高级特性 + 量化」，以及 `Agent / Runtime` 的「训练后自动量化 + vLLM deploy + benchmark」。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Diffusion Continuous Batching</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm-omni/issues/2136" target="_blank">vLLM-Omni Roadmap</a>、<a href="https://arxiv.org/abs/2006.11239" target="_blank">DDPM</a>、<a href="https://arxiv.org/abs/2010.02502" target="_blank">DDIM</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `Diffusion / Flow` 的「最小实验 + 可视化」+「DiT + 现代方向 + Blog」；这里不是新主线，而是你现有 diffusion 主线的 runtime 杠杆。</p>
+            </article>
+
+            <article class="strategy-omni-item">
+              <h5>Model Runner V2</h5>
+              <p><strong>看什么:</strong> <a href="https://github.com/vllm-project/vllm/issues/39749" target="_blank">Model Runner V2</a>、<a href="https://docs.vllm.ai/en/latest/" target="_blank">vLLM Docs</a>、<a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank">Orca</a>。</p>
+              <p><strong>对应上方计划:</strong> `vLLM / Inference Infra` 的「进阶 & 面试加分」+ `Agent / Runtime` 的「Coding Agent 完善 + Run 记录」；重点是补 execution loop / runner abstraction，不是现在重写系统。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="burnout-wrap">
+        <h3 class="burnout-title">🛡 防 Burn Out 指南</h3>
+        <div class="burnout-grid">
+          <article class="burnout-card">
+            <h4>执行结构</h4>
+            <ul>
+              <li>主线只保留 1 条: Agent + vLLM / inference infra</li>
+              <li>副线只保留 1 条: Diffusion / Flow 稳定积累</li>
+              <li>保温线: 英语表达 + system design + leetcode</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>日上限规则</h4>
+            <ul>
+              <li>深度工程任务: 每天最多 1 块</li>
+              <li>深度理论任务: 每天最多 1 块</li>
+              <li>面试准备: 每天 45-60 分钟</li>
+              <li>晚上不做新重设计, 只整理/阅读</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>风险信号</h4>
+            <ul>
+              <li>黄色: TODO 快速增长, Done 变少, 切换太频繁</li>
+              <li>红色: 连续几天不想开项目, 只刷资料不动手</li>
+              <li>到黄色立刻减负, 不靠意志硬顶</li>
+            </ul>
+          </article>
+          <article class="burnout-card">
+            <h4>硬规则</h4>
+            <ul>
+              <li>任何时刻只允许两个开放工程问题</li>
+              <li>每天有产出, 但不要求四线齐推</li>
+              <li>每周至少一个可见成果和一次回顾</li>
+            </ul>
+          </article>
+        </div>
+        <p class="burnout-ratio"><strong>当前建议负载比例:</strong> 50% Agent + Inference Infra · 25% Diffusion · 15% 英语/项目表达 · 10% LeetCode/System Design</p>
+      </div>
+    </section>
   </div>
   <script>
     const REFRESH_MS = 5000;
     const SHUTDOWN_TIMEOUT_MS = 120000;
     const POLL_MS = 5000;
+
+    const ROADMAP_TRACKS = {
+      vllm: {
+        name: 'vLLM / Inference Infra',
+        icon: '⚡',
+        sections: [
+          {
+            title: '建 inference-lab repo + 跑通 baseline',
+            priority: 'P0',
+            items: [
+              { text: '建 inference-lab repo，统一 benchmark harness v1', tag: '实战', link: null },
+              { text: '统一指标体系: TTFT / decode tok·s⁻¹ / prompt len / concurrency / GPU mem / batch size', tag: '实战', link: null },
+              { text: '5090 Docker 环境跑通 HF Transformers baseline (generate + 采集指标)', tag: '实战', link: null },
+              { text: '跑通 vLLM 0.19.x baseline (同模型同 prompt，对照 HF)', tag: '实战', link: null },
+              { text: '做一次 HF vs vLLM 对照表 → 写进 README', tag: '输出', link: null }
+            ]
+          },
+          {
+            title: '核心论文 & 源码精读',
+            priority: 'P0',
+            items: [
+              { text: 'PagedAttention (Kwon et al. 2023) — 虚拟内存 KV cache 管理', tag: '论文', link: 'https://arxiv.org/abs/2309.06180' },
+              { text: 'Orca / Continuous Batching (Yu et al. 2022) — iteration-level scheduling', tag: '论文', link: 'https://www.usenix.org/conference/osdi22/presentation/yu' },
+              { text: 'FlashAttention 1 & 2 (Dao et al.) — IO-aware tiling, kernel 优化', tag: '论文', link: 'https://github.com/Dao-AILab/flash-attention' },
+              { text: 'vLLM V1 源码链路: Scheduler → KV Cache Manager → Model Runner', tag: '源码', link: 'https://docs.vllm.ai/en/latest/' },
+              { text: 'vLLM PagedAttention 设计页精读', tag: '源码', link: 'https://docs.vllm.ai/en/latest/design/kernel/paged_attention.html' }
+            ]
+          },
+          {
+            title: '验证高级特性 + 量化',
+            priority: 'P1',
+            items: [
+              { text: '验证 Prefix Caching — 和 agent workload 高度相关', tag: '实验', link: 'https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html' },
+              { text: '验证 Chunked Prefill — 长 prompt 场景', tag: '实验', link: null },
+              { text: '量化对比: FP8 / NVFP4 / AWQ / GPTQ 在 5090 上 throughput & latency', tag: '实验', link: null },
+              { text: 'Speculative Decoding (Leviathan 2023; Chen 2023) — draft-verify 流程', tag: '论文', link: 'https://arxiv.org/abs/2302.01318' }
+            ]
+          },
+          {
+            title: '进阶 & 面试加分',
+            priority: 'P2',
+            items: [
+              { text: 'Model Runner V2 (MRV2) — piecewise CUDA graphs, async scheduling', tag: '源码', link: 'https://github.com/vllm-project/vllm/issues/39749' },
+              { text: 'Disaggregated Serving: Prefill-Decode 分离架构 (PD disagg)', tag: '架构', link: null },
+              { text: 'MoE 推理: Expert Parallelism, EPLB', tag: '架构', link: null },
+              { text: 'Blog:「5090 上 vLLM 推理全链路实测」', tag: '输出', link: null }
+            ]
+          }
+        ]
+      },
+      diffusion: {
+        name: 'Diffusion / Flow',
+        icon: '🌊',
+        sections: [
+          {
+            title: '术语表 + 经典精读 (依赖顺序)',
+            priority: 'P0',
+            items: [
+              { text: '写统一术语表: score / x0-pred / epsilon-pred / velocity / probability path / ODE·SDE / sampler·solver·NFE', tag: '输出', link: null },
+              { text: 'DDPM (Ho et al. 2020) — 从零实现 forward/reverse, CIFAR-10 训练', tag: '复现', link: 'https://arxiv.org/abs/2006.11239' },
+              { text: 'DDIM (Song et al. 2021) — deterministic sampling, eta, skip steps', tag: '复现', link: 'https://arxiv.org/abs/2010.02502' },
+              { text: 'Score-SDE (Song et al. 2021) — SDE/ODE 统一, score matching ↔ DDPM', tag: '论文', link: 'https://arxiv.org/abs/2011.13456' }
+            ]
+          },
+          {
+            title: '最小实验 + 可视化',
+            priority: 'P0',
+            items: [
+              { text: '做一个 2D toy 实验: Swiss Roll / 双月形 → 可视化 trajectory', tag: '实验', link: null },
+              { text: '画一张 diffusion → flow 的连续关系图', tag: '输出', link: null },
+              { text: '最小 notebook: DDPM objective vs FM objective 对比', tag: '实验', link: null }
+            ]
+          },
+          {
+            title: 'DiT + 现代方向 + Blog',
+            priority: 'P1',
+            items: [
+              { text: 'EDM (Karras et al. 2022) — design space, preconditioning, noise schedule', tag: '论文', link: 'https://arxiv.org/abs/2206.00364' },
+              { text: 'DiT (Peebles & Xie 2023) — Transformer 替代 UNet, adaLN-Zero', tag: '复现', link: 'https://arxiv.org/abs/2212.09748' },
+              { text: 'Latent Diffusion (Rombach et al. 2022) — VAE + UNet in latent space', tag: '论文', link: 'https://arxiv.org/abs/2112.10752' },
+              { text: '写 Blog:「From Diffusion to Flow」(英文)', tag: '输出', link: null }
+            ]
+          },
+          {
+            title: '前沿跟踪 (暂缓)',
+            priority: 'P2',
+            items: [
+              { text: 'MeanFlow (Geng, He et al. 2025) — average velocity, 1-step', tag: '论文', link: 'https://arxiv.org/abs/2505.13447' },
+              { text: 'Consistency Models (Song et al. 2023) — self-consistency, 1-step 蒸馏', tag: '论文', link: 'https://arxiv.org/abs/2303.01469' },
+              { text: 'Diffusion Language Models survey (VILA-Lab)', tag: '阅读', link: 'https://github.com/VILA-Lab/Awesome-DLMs' },
+              { text: 'vLLM-Omni diffusion serving: 训练好的 DiT 接入 vLLM', tag: '交叉', link: 'https://github.com/vllm-project/vllm-omni/issues/2136' }
+            ]
+          }
+        ]
+      },
+      agent: {
+        name: 'Agent / Runtime',
+        icon: '🤖',
+        sections: [
+          {
+            title: 'Coding Agent 完善 + Run 记录',
+            priority: 'P0',
+            items: [
+              { text: '给现有 coding agent 加: run state / logs / artifact store / failure reason', tag: '开发', link: null },
+              { text: '统一 task schema + 输入/输出 contract', tag: '设计', link: null },
+              { text: 'Cross-repo: 先支持最小 happy path (两个 repo 联动)', tag: '开发', link: null },
+              { text: '加一个人工确认节点 (human-in-the-loop)', tag: '开发', link: null }
+            ]
+          },
+          {
+            title: 'Training Agent 闭环',
+            priority: 'P0',
+            items: [
+              { text: '串一次 spec → model search → Docker train → result eval 闭环', tag: '开发', link: null },
+              { text: 'Agent core loop: 不用 LangChain, 自己 tool-use + state machine', tag: '开发', link: null },
+              { text: 'Mac mini control → 5090 exec: task dispatch + monitoring', tag: '基建', link: null },
+              { text: 'Task queue: 先 SQLite MVP (simple wins)', tag: '设计', link: null }
+            ]
+          },
+          {
+            title: 'Agent → 部署闭环 + Eval',
+            priority: 'P1',
+            items: [
+              { text: '训练后自动量化 + vLLM deploy + benchmark', tag: '开发', link: null },
+              { text: 'Cloudflare Tunnel (api.omegaterm.xyz) 暴露 API', tag: '基建', link: null },
+              { text: '加 retry / rollback 规则', tag: '开发', link: null },
+              { text: '设计 trace 结构 → run viewer 或日志页', tag: '开发', link: null }
+            ]
+          },
+          {
+            title: '参考文献 & 架构灵感',
+            priority: 'P2',
+            items: [
+              { text: 'Anthropic — Building Effective Agents (必读首篇)', tag: '阅读', link: 'https://www.anthropic.com/research/building-effective-agents' },
+              { text: 'Anthropic — Effective Context Engineering for AI Agents', tag: '阅读', link: 'https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents' },
+              { text: 'MCP 官方规格 (2025-11-25 revision)', tag: '阅读', link: 'https://modelcontextprotocol.io/specification/2025-11-25' },
+              { text: 'SWE-bench (Princeton) — coding agent eval 标准', tag: '阅读', link: 'https://github.com/princeton-nlp/SWE-bench' }
+            ]
+          }
+        ]
+      },
+      interview: {
+        name: '面试准备',
+        icon: '🎯',
+        sections: [
+          {
+            title: 'Anthropic 面试流程 + 叙事',
+            priority: 'P0',
+            items: [
+              { text: '研究面试流程: Recruiter → CodeSignal OA → Technical → Onsite', tag: '准备', link: 'https://igotanoffer.com/en/advice/anthropic-interview-process' },
+              { text: 'CodeSignal OA: 90min 4级递进, 练 modular code + 逐级加约束', tag: '刷题', link: null },
+              { text: '准备 Why Anthropic 叙事', tag: '叙事', link: null },
+              { text: 'Constitutional AI 论文精读', tag: '知识', link: 'https://arxiv.org/abs/2212.08073' }
+            ]
+          },
+          {
+            title: '4 个英文项目故事卡 (90s + 3min)',
+            priority: 'P0',
+            items: [
+              { text: 'Story 1: Tell me about yourself (完整主线叙事)', tag: '叙事', link: null },
+              { text: 'Story 2: Homelab + inference infra', tag: '叙事', link: null },
+              { text: 'Story 3: Coding/cross-repo agent', tag: '叙事', link: null },
+              { text: 'Story 4: Diffusion/flow research + training pipeline', tag: '叙事', link: null }
+            ]
+          },
+          {
+            title: '系统设计 × 4 模板',
+            priority: 'P1',
+            items: [
+              { text: '设计 LLM Inference Service: batch scheduler, KV cache, autoscaling', tag: '系统', link: null },
+              { text: '设计 Model Training Orchestration: parallelism, checkpointing', tag: '系统', link: null },
+              { text: '设计 Agent Runtime with Tools + Human Review', tag: '系统', link: null },
+              { text: '设计 Evaluation Pipeline: A/B, online/offline, safety guardrails', tag: '系统', link: null }
+            ]
+          },
+          {
+            title: 'LeetCode + Coding',
+            priority: 'P1',
+            items: [
+              { text: '每天 1-2 题 Medium: 图/树/DP/滑动窗口, Python', tag: '刷题', link: 'https://leetcode.com/' },
+              { text: 'KV store 实现 (加约束: persistence → compression → concurrency)', tag: '刷题', link: null },
+              { text: 'Async URL parser + domain counter → scale to 100K rps', tag: '刷题', link: null },
+              { text: 'Token generator: scale to 100K rps (分布式 latency)', tag: '刷题', link: null }
+            ]
+          }
+        ]
+      }
+    };
+
+    const ROADMAP_STATE = {
+      track: 'vllm',
+      priority: 'all'
+    };
 
     let _busy = 0;
     let _toastTimer = null;
@@ -161,7 +924,19 @@ _PAGE = """<!DOCTYPE html>
     function endBusy() {
       _busy = Math.max(0, _busy - 1);
       setActivity();
-      if (_busy === 0) location.reload();
+      if (_busy === 0) refreshRows();
+    }
+
+    async function refreshRows() {
+      try {
+        const resp = await fetch('/ui/rows', {cache: 'no-store'});
+        if (!resp.ok) return;
+        const html = await resp.text();
+        const tbody = document.getElementById('host-rows');
+        if (tbody) tbody.innerHTML = html;
+        _lastRefresh = Date.now();
+        updateRefreshLabel();
+      } catch (_) {}
     }
 
     async function postOrThrow(url, body) {
@@ -256,8 +1031,181 @@ _PAGE = """<!DOCTYPE html>
       const s = Math.round((Date.now() - _lastRefresh) / 1000);
       el.textContent = s <= 0 ? 'just now' : s + 's ago';
     }
+
+    function escHtml(input) {
+      return String(input)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function roadmapSections() {
+      const track = ROADMAP_TRACKS[ROADMAP_STATE.track];
+      if (!track) return [];
+      if (ROADMAP_STATE.priority === 'all') return track.sections;
+      return track.sections.filter(s => s.priority === ROADMAP_STATE.priority);
+    }
+
+    function progressStorageKey(trackKey, sectionTitle) {
+      return 'roadmap_progress::' + trackKey + '::' + sectionTitle;
+    }
+
+    function readProgress(trackKey, sectionTitle) {
+      const key = progressStorageKey(trackKey, sectionTitle);
+      const raw = localStorage.getItem(key);
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return 0;
+      return Math.max(0, Math.min(100, Math.round(n)));
+    }
+
+    function writeProgress(trackKey, sectionTitle, value) {
+      const key = progressStorageKey(trackKey, sectionTitle);
+      localStorage.setItem(key, String(value));
+    }
+
+    function progressColorClass(value) {
+      if (value >= 100) return '#06b6d4';
+      if (value >= 70) return '#22c55e';
+      if (value >= 40) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function renderProgressPanel(sections) {
+      const panelEl = document.getElementById('project-progress');
+      if (!panelEl) return;
+
+      if (!sections.length) {
+        panelEl.innerHTML = '<h3 class="progress-title">项目进度 Slider</h3><div class="roadmap-meta">当前筛选无项目</div>';
+        return;
+      }
+
+      panelEl.innerHTML =
+        '<h3 class="progress-title">项目进度 Slider</h3>' +
+        '<div class="progress-list">' +
+        sections.map((sec) => {
+          const p = readProgress(ROADMAP_STATE.track, sec.title || '');
+          const color = progressColorClass(p);
+          return (
+            '<article class="progress-row">' +
+            '<div class="progress-row-top">' +
+            '<div class="progress-name">' + escHtml(sec.title || '') + '</div>' +
+            '<div class="progress-pct">' + p + '%</div>' +
+            '</div>' +
+            '<input class="progress-slider" type="range" min="0" max="100" step="1" value="' + p + '" style="--pct: ' + p + '%; --slider-color: ' + color + ';" data-progress-track="' + escHtml(ROADMAP_STATE.track) + '" data-progress-title="' + escHtml(sec.title || '') + '" />' +
+            '</article>'
+          );
+        }).join('') +
+        '</div>';
+
+      panelEl.querySelectorAll('.progress-slider').forEach((sliderEl) => {
+        sliderEl.addEventListener('input', () => {
+          let v = Number(sliderEl.value);
+          if (!Number.isFinite(v)) v = 0;
+          v = Math.max(0, Math.min(100, Math.round(v)));
+          sliderEl.value = String(v);
+
+          const color = progressColorClass(v);
+          sliderEl.style.setProperty('--pct', v + '%');
+          sliderEl.style.setProperty('--slider-color', color);
+
+          const pctEl = sliderEl.closest('.progress-row')?.querySelector('.progress-pct');
+          if (pctEl) pctEl.textContent = v + '%';
+
+          const track = sliderEl.dataset.progressTrack || ROADMAP_STATE.track;
+          const title = sliderEl.dataset.progressTitle || '';
+          writeProgress(track, title, v);
+        });
+      });
+    }
+
+
+    function roadmapRenderTabs() {
+      const tabsEl = document.getElementById('roadmap-tabs');
+      const filterEl = document.getElementById('roadmap-filters');
+      tabsEl.innerHTML = Object.entries(ROADMAP_TRACKS).map(([k, v]) => (
+        '<button class="roadmap-tab ' + (k === ROADMAP_STATE.track ? 'active' : '') +
+        '" data-track="' + k + '">' + escHtml(v.icon + ' ' + v.name) + '</button>'
+      )).join('');
+      filterEl.innerHTML = ['all', 'P0', 'P1', 'P2'].map((p) => (
+        '<button class="roadmap-filter ' + (p === ROADMAP_STATE.priority ? 'active' : '') +
+        '" data-priority="' + p + '">' + (p === 'all' ? '全部' : p) + '</button>'
+      )).join('');
+
+      tabsEl.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          ROADMAP_STATE.track = btn.dataset.track;
+          roadmapRender();
+        });
+      });
+      filterEl.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          ROADMAP_STATE.priority = btn.dataset.priority;
+          roadmapRender();
+        });
+      });
+    }
+
+    function roadmapRenderPage() {
+      const sections = roadmapSections();
+      const pageEl = document.getElementById('roadmap-page');
+      const metaEl = document.getElementById('roadmap-meta');
+      metaEl.textContent = 'sections: ' + sections.length + ' · full list mode';
+
+      if (sections.length === 0) {
+        pageEl.innerHTML = '<div class="roadmap-card"><div class="roadmap-card-head"><h3 class="roadmap-title">No items</h3></div></div>';
+        return;
+      }
+
+      pageEl.innerHTML = sections.map((sec) => {
+        const items = (sec.items || []).map((it) => {
+          const link = it.link ? ('<a href="' + escHtml(it.link) + '" target="_blank">link</a>') : '';
+          const tag = it.tag ? ('<span class="roadmap-tag">' + escHtml(it.tag) + '</span>') : '';
+          return '<li><span class="roadmap-dot"></span><span>' + escHtml(it.text) + link + '</span>' + tag + '</li>';
+        }).join('');
+
+        return (
+          '<article class="roadmap-card">' +
+          '<div class="roadmap-card-head">' +
+          '<span class="roadmap-pri">' + escHtml(sec.priority || '-') + '</span>' +
+          '<h3 class="roadmap-title">' + escHtml(sec.title || '') + '</h3>' +
+          '<span class="roadmap-count">' + (sec.items ? sec.items.length : 0) + '</span>' +
+          '</div>' +
+          '<ul class="roadmap-items">' + items + '</ul>' +
+          '</article>'
+        );
+      }).join('');
+
+      renderProgressPanel(sections);
+    }
+
+    function roadmapRender() {
+      roadmapRenderTabs();
+      roadmapRenderPage();
+    }
+
+    roadmapRender();
+
+    function tickClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+      const y = now.getFullYear();
+      const mo = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const t = document.getElementById('clk-time');
+      const dt = document.getElementById('clk-date');
+      if (t) t.textContent = `${hh}:${mm}:${ss}`;
+      if (dt) dt.textContent = `${days[now.getDay()]} · ${y}.${mo}.${d}`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
     setInterval(updateRefreshLabel, 1000);
-    setInterval(() => { if (_busy === 0) location.reload(); }, REFRESH_MS);
+    setInterval(() => { if (_busy === 0) refreshRows(); }, REFRESH_MS);
   </script>
 </body>
 </html>"""
@@ -322,3 +1270,9 @@ def _row(host: str, cfg: dict) -> str:
 def ui():
     rows = "\n".join(_row(host, cfg) for host, cfg in settings.hosts.items())
     return HTMLResponse(_PAGE.replace("{rows}", rows))
+
+
+@router.get("/ui/rows", response_class=HTMLResponse)
+def ui_rows():
+    rows = "\n".join(_row(host, cfg) for host, cfg in settings.hosts.items())
+    return HTMLResponse(rows)
