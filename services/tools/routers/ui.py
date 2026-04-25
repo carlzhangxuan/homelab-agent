@@ -461,10 +461,36 @@ _PAGE = """<!DOCTYPE html>
       padding-top: 0.6rem;
     }
     .burnout-ratio strong { color: var(--fg); }
+
+    .clock {
+      display: flex;
+      align-items: baseline;
+      gap: 0.9rem;
+      margin: -0.3rem 0 1.2rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .clock-time {
+      color: #8be9fd;
+      font-size: 1.45rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      font-feature-settings: "tnum";
+    }
+    .clock-date {
+      color: #6272a4;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
   <h1>Homelab</h1>
+  <div class="clock">
+    <span class="clock-time" id="clk-time">--:--:--</span>
+    <span class="clock-date" id="clk-date">— · ----.--.--</span>
+  </div>
   <div class="bar">
     <span>auto-refresh every <span id="refresh-s">5</span>s · <span id="last-refresh">just now</span></span>
     <span id="activity"></span>
@@ -1160,6 +1186,23 @@ _PAGE = """<!DOCTYPE html>
     }
 
     roadmapRender();
+
+    function tickClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+      const y = now.getFullYear();
+      const mo = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const t = document.getElementById('clk-time');
+      const dt = document.getElementById('clk-date');
+      if (t) t.textContent = `${hh}:${mm}:${ss}`;
+      if (dt) dt.textContent = `${days[now.getDay()]} · ${y}.${mo}.${d}`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
 
     setInterval(updateRefreshLabel, 1000);
     setInterval(() => { if (_busy === 0) refreshRows(); }, REFRESH_MS);
